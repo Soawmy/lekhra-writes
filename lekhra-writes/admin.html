@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Lekhra Writes</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="assets/logo-mark.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@300;400;500;600;700&display=swap">
+<link rel="stylesheet" href="css/style.css?v=9">
+<style>
+  body{ min-height:100vh; }
+  .admin-shell{ max-width:880px; margin:0 auto; padding: 56px var(--edge) 100px; }
+  .admin-header{ display:flex; align-items:center; justify-content:space-between; margin-bottom:48px; flex-wrap:wrap; gap:16px; }
+  .admin-header .nav-logo{ font-family: var(--font-display); font-size:1.1rem; display:flex; align-items:center; gap:10px; }
+  .admin-header .nav-logo img{ width:28px; height:28px; object-fit:contain; }
+  .admin-card{ background: var(--obsidian-2); border:1px solid rgba(241,238,231,0.1); border-radius:8px; padding: clamp(24px,4vw,40px); margin-bottom: 32px; }
+  .admin-card h2{ font-size:1.3rem; margin-bottom:6px; }
+  .admin-card .sub{ color:var(--grey); font-size:0.85rem; margin-bottom:24px; }
+  #login-view{ max-width:380px; margin: 10vh auto 0; }
+  #login-view h1{ font-size:1.8rem; margin-bottom:8px; text-align:center; }
+  #login-view p.sub{ text-align:center; color:var(--grey); font-size:0.85rem; margin-bottom:28px; }
+  .field{ display:flex; flex-direction:column; gap:8px; font-size:0.72rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--grey); margin-bottom:20px; }
+  .field input{
+    background: var(--obsidian); border:1px solid rgba(241,238,231,0.14); border-radius:3px; padding:13px 14px;
+    color: var(--ivory); font-size:0.95rem; text-transform:none; letter-spacing:normal; transition: border-color .3s ease;
+  }
+  .field input:focus{ border-color: var(--gold); outline:none; }
+  .form-msg{ font-size:0.82rem; margin-top:6px; min-height:1.2em; }
+  .form-msg.is-error{ color:#d98a7a; }
+  .form-msg.is-ok{ color:#8fbf8a; }
+  .grid-2-admin{ display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  @media (max-width:640px){ .grid-2-admin{ grid-template-columns:1fr; } }
+  .sub-item{ border:1px solid rgba(241,238,231,0.1); border-radius:6px; padding:18px 20px; margin-bottom:14px; }
+  .sub-item .sub-top{ display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:10px; margin-bottom:10px; }
+  .sub-item .sub-top .services{ font-family: var(--font-display); font-size:1.05rem; color: var(--gold-soft); }
+  .sub-item .sub-top time{ color: var(--grey); font-size:0.78rem; }
+  .sub-item .sub-line{ font-size:0.88rem; color: var(--ivory-2); margin-bottom:4px; }
+  .sub-item .sub-line b{ color: var(--grey); font-weight:600; margin-right:6px; }
+  .sub-item details{ margin-top:10px; }
+  .sub-item summary{ cursor:pointer; font-size:0.78rem; color: var(--gold); letter-spacing:0.05em; }
+  .sub-item .all-fields{ margin-top:12px; display:grid; grid-template-columns:160px 1fr; gap:6px 14px; font-size:0.85rem; }
+  .sub-item .all-fields b{ color: var(--grey); font-weight:600; }
+  .empty-note{ color: var(--grey); font-size:0.9rem; text-align:center; padding:30px 0; }
+  #logout-btn{ font-size:0.75rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--grey); border:1px solid rgba(241,238,231,0.18); border-radius:30px; padding:9px 18px; }
+  #logout-btn:hover{ color:var(--gold-soft); border-color:var(--gold); }
+</style>
+</head>
+<body class="section--dark" style="min-height:100vh;">
+
+<div id="login-view" class="admin-shell" style="display:none;">
+  <h1 class="serif">Admin</h1>
+  <p class="sub">Lekhra Writes dashboard</p>
+  <form id="login-form">
+    <label class="field">Username<input type="text" name="username" autocomplete="username" required></label>
+    <label class="field">Password<input type="password" name="password" autocomplete="current-password" required></label>
+    <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;"><span>Log In</span></button>
+    <p id="login-msg" class="form-msg"></p>
+  </form>
+</div>
+
+<div id="dashboard-view" class="admin-shell" style="display:none;">
+  <div class="admin-header">
+    <a href="index.html" class="nav-logo"><img src="assets/logo-mark.png" alt="Lekhra Writes"> LEKHRA WRITES — ADMIN</a>
+    <button id="logout-btn" type="button">Log Out</button>
+  </div>
+
+  <div class="admin-card">
+    <h2>Settings</h2>
+    <p class="sub">Change where new briefs get emailed, and the login for this dashboard.</p>
+    <form id="settings-form">
+      <label class="field">Send new briefs to<input type="email" name="toEmail" required></label>
+      <div class="grid-2-admin">
+        <label class="field">Dashboard username<input type="text" name="username" autocomplete="username"></label>
+        <label class="field">New password <span style="text-transform:none; letter-spacing:0;">(leave blank to keep current)</span><input type="password" name="password" autocomplete="new-password"></label>
+      </div>
+      <button type="submit" class="btn btn-ghost"><span>Save Changes</span><span class="arrow">&rarr;</span></button>
+      <p id="settings-msg" class="form-msg"></p>
+    </form>
+  </div>
+
+  <div class="admin-card">
+    <h2>Submissions</h2>
+    <p class="sub">Every "Start a Project" brief someone has sent, most recent first.</p>
+    <div id="submissions-list"></div>
+  </div>
+</div>
+
+<script src="js/admin.js?v=1" defer></script>
+</body>
+</html>

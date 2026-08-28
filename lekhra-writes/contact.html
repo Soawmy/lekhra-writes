@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Start a Project — Lekhra Writes</title>
+<meta name="description" content="Tell Lekhra Writes what you're looking to create — a short branching brief, not a generic contact form.">
+<meta property="og:title" content="Start a Project — Lekhra Writes">
+<meta property="og:description" content="Tell Lekhra Writes what you're looking to create — a short branching brief, not a generic contact form.">
+<meta property="og:type" content="website">
+<link rel="icon" href="assets/logo-mark.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@300;400;500;600;700&display=swap">
+<link rel="stylesheet" href="css/style.css?v=9">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div id="page-transition"><div class="sheet"></div><div class="ink"></div></div>
+<nav class="site-nav">
+  <div class="container">
+    <a href="index.html" class="nav-logo" data-cursor="HOME"><img src="assets/logo-mark.png" alt="Lekhra Writes" width="30" height="30"> LEKHRA WRITES</a>
+    <div class="nav-links">
+      <a href="work.html">Work</a>
+      <a href="services/index.html">Services</a>
+      <a href="studio.html">Studio</a>
+      <a href="process.html">Process</a>
+      <a href="contact.html" class="nav-cta  is-active">Contact</a>
+    </div>
+    <button class="nav-burger" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+<div class="mobile-menu">
+  <a href="work.html">Work</a>
+  <a href="services/index.html">Services</a>
+  <a href="studio.html">Studio</a>
+  <a href="process.html">Process</a>
+  <a href="contact.html">Contact</a>
+</div>
+
+<main id="main">
+<section class="section--dark pad" style="padding-top: calc(var(--nav-h) + 50px); position:relative;">
+  <div class="ambient-glow ambient-glow--gold ambient-glow--tl"></div>
+  <div class="container center">
+    <p class="eyebrow reveal mx-auto" style="justify-content:center;">Start a Project</p>
+    <h1 class="serif reveal reveal-1" style="font-size: clamp(2.2rem,5.6vw,4rem); max-width:18ch; margin:20px auto 0;">WHAT ARE YOU LOOKING TO CREATE?</h1>
+  </div>
+</section>
+
+<section class="section--dark-alt pad-sm">
+  <div class="container" style="max-width:760px;">
+
+    <div class="reveal" style="display:flex; gap:8px; margin-bottom:40px;">
+      <span class="brief-progress-track" style="flex:1; height:2px; background:rgba(241,238,231,0.12); position:relative;">
+        <span style="display:block; height:100%; width:0%; background:var(--gold); transition:width .4s ease;"></span>
+      </span>
+    </div>
+
+    <form id="brief-form" novalidate class="reveal reveal-1">
+
+      <!-- STEP 0: services (multi-select) -->
+      <div class="brief-step is-active" data-step="0">
+        <p class="grey-text" style="margin-bottom:18px; font-size:0.85rem;">Select everything that applies &mdash; you can choose more than one.</p>
+        <div class="finder-grid">
+          <button type="button" class="chip" data-category="website">Website</button>
+          <button type="button" class="chip" data-category="content">Content</button>
+          <button type="button" class="chip" data-category="script">Script</button>
+          <button type="button" class="chip" data-category="video">Video</button>
+          <button type="button" class="chip" data-category="design">Design</button>
+          <button type="button" class="chip" data-category="social">Social Media</button>
+          <button type="button" class="chip" data-category="marketing">Marketing</button>
+          <button type="button" class="chip" data-category="other">Something Else</button>
+        </div>
+        <p id="brief-step0-hint" style="display:none; color:#c17b6b; font-size:0.8rem; margin-top:16px;">Pick at least one to continue.</p>
+        <div style="display:flex; gap:16px; margin-top:30px;">
+          <button type="button" class="btn btn-primary" data-continue-from-services="1"><span>Continue</span><span class="arrow">&rarr;</span></button>
+        </div>
+      </div>
+
+      <!-- STEP 1: dynamic follow-up — one block per selected service, no repeated questions -->
+      <div class="brief-step" data-step="1" style="display:none;">
+        <h3 style="font-size:1.4rem; margin-bottom:6px;">A few details.</h3>
+        <p class="grey-text" id="brief-step1-selected" style="font-size:0.85rem; margin-bottom:24px;"></p>
+
+        <div class="grid-2" data-for-category="website" style="display:none;">
+          <label>Type of website<input name="website_type" placeholder="e.g. business, portfolio, e-commerce" data-required="true"></label>
+          <label>Purpose<input name="website_purpose" placeholder="what should it do for you?"></label>
+          <label>Number of pages<input name="website_pages" placeholder="e.g. 5"></label>
+          <label>Existing branding?<select name="website_branding"><option value="">Select</option><option>Yes</option><option>No</option></select></label>
+        </div>
+
+        <div class="grid-2" data-for-category="content" style="display:none;">
+          <label>Content type<input name="content_type" placeholder="blog, web copy, ghostwriting..." data-required="true"></label>
+          <label>Quantity<input name="content_qty" placeholder="e.g. 4 articles"></label>
+          <label>Format<input name="content_format" placeholder="long-form, short-form..."></label>
+          <label>Target audience<input name="content_audience" placeholder="who is this for?"></label>
+        </div>
+
+        <div class="grid-2" data-for-category="script" style="display:none;">
+          <label>Script format<select name="script_format" data-required="true"><option value="">Select</option><option>Film</option><option>Short Film</option><option>YouTube</option><option>Dialogue</option><option>Other</option></select></label>
+          <label>Approximate length<input name="script_length" placeholder="e.g. 10 minutes"></label>
+          <label>Genre<input name="script_genre" placeholder="e.g. drama, comedy"></label>
+          <label>Existing concept?<select name="script_concept"><option value="">Select</option><option>Yes</option><option>No</option></select></label>
+        </div>
+
+        <div class="grid-2" data-for-category="video" style="display:none;">
+          <label>Video type<input name="video_type" placeholder="short-form, long-form, YouTube..." data-required="true"></label>
+          <label>Video scope<input name="video_scope" placeholder="e.g. 5 clips, 1 full edit"></label>
+        </div>
+
+        <div class="grid-2" data-for-category="design" style="display:none;">
+          <label>Design type<input name="design_type" placeholder="branding, thumbnails, social..." data-required="true"></label>
+          <label>Design scope<input name="design_scope" placeholder="e.g. logo + 3 templates"></label>
+        </div>
+
+        <div class="grid-2" data-for-category="social" style="display:none;">
+          <label>Social content type<input name="social_type" placeholder="content, planning, strategy..." data-required="true"></label>
+          <label>Social scope<input name="social_scope" placeholder="e.g. 12 posts/month"></label>
+        </div>
+
+        <div class="grid-2" data-for-category="marketing" style="display:none;">
+          <label>Marketing type<input name="marketing_type" placeholder="campaign, research, strategy..." data-required="true"></label>
+          <label>Marketing scope<input name="marketing_scope" placeholder="what's included"></label>
+        </div>
+
+        <div class="grid-2" data-for-category="other" style="display:none;">
+          <label style="grid-column:1/-1;">Tell us what it is<textarea name="other_desc" rows="4" placeholder="describe the idea" data-required="true"></textarea></label>
+        </div>
+
+        <!-- Shared across every selected service — asked once, never repeated -->
+        <label style="margin-top:6px;">References <span style="color:var(--grey); text-transform:none; letter-spacing:0;">(optional)</span><input name="references" placeholder="sites, accounts, examples, or a tone you like"></label>
+
+        <div style="display:flex; gap:16px; margin-top:30px;">
+          <button type="button" class="btn btn-ghost" data-back="0"><span>Back</span></button>
+          <button type="button" class="btn btn-primary" data-next="2"><span>Continue</span><span class="arrow">&rarr;</span></button>
+        </div>
+      </div>
+
+      <!-- STEP 2: final fields -->
+      <div class="brief-step" data-step="2" style="display:none;">
+        <h3 style="font-size:1.4rem; margin-bottom:24px;">Almost there.</h3>
+        <div class="grid-2">
+          <label>Name<input name="name" required></label>
+          <label>Email or phone<input name="contact" required></label>
+          <label>Budget range <span style="color:var(--grey); text-transform:none; letter-spacing:0;">(optional)</span><input name="budget"></label>
+          <label>Timeline<input name="final_timeline" placeholder="when do you need this?"></label>
+        </div>
+        <label style="display:block; margin-top:20px;">Additional details<textarea name="details" rows="4"></textarea></label>
+        <p id="brief-error" class="grey-text" style="display:none; color:#c17b6b; margin-top:16px; font-size:0.85rem;">Something went wrong sending your brief &mdash; please try again, or email us directly.</p>
+        <div style="display:flex; gap:16px; margin-top:30px; align-items:center;">
+          <button type="button" class="btn btn-ghost" data-back="1"><span>Back</span></button>
+          <button type="submit" class="btn btn-primary" data-cursor="SEND" id="brief-submit"><span>Send Project Brief</span><span class="arrow">&rarr;</span></button>
+        </div>
+      </div>
+
+    </form>
+
+    <div id="brief-confirm" style="display:none; text-align:center; padding: 40px 0;">
+      <h2 class="serif" style="font-size: clamp(1.8rem,4vw,2.6rem); margin-bottom:18px;">YOUR IDEA IS NOW IN THE ROOM.</h2>
+      <p class="grey-text" style="max-width:44ch; margin:0 auto 30px;">We'll review your brief and get back to you.</p>
+      <a href="index.html" class="btn btn-ghost"><span>Back to Home</span><span class="arrow">&rarr;</span></a>
+    </div>
+
+  </div>
+</section>
+</main>
+<style>
+#brief-form label{ display:flex; flex-direction:column; gap:8px; font-size:0.72rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--grey); margin-bottom:20px; }
+#brief-form input, #brief-form select, #brief-form textarea{
+  background: var(--obsidian-2); border:1px solid rgba(241,238,231,0.14); border-radius:3px; padding:13px 14px;
+  color: var(--ivory); font-size:0.95rem; text-transform:none; letter-spacing:normal; transition: border-color .3s ease;
+}
+#brief-form input:focus, #brief-form select:focus, #brief-form textarea:focus{ border-color: var(--gold); outline:none; }
+#brief-form .chip.is-active{ border-color: var(--gold); color: var(--gold-soft); background: rgba(200,164,93,0.12); }
+#brief-submit[disabled]{ opacity:0.6; pointer-events:none; }
+</style>
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="index.html" class="nav-logo"><img src="assets/logo-mark.png" alt="Lekhra Writes" width="30" height="30"> LEKHRA WRITES</a>
+        <p>Stories. Scripted. Memorable.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Studio</h5>
+        <a href="work.html">Work</a>
+        <a href="services/index.html">Services</a>
+        <a href="studio.html">Studio</a>
+        <a href="process.html">Process</a>
+        <a href="contact.html">Contact</a>
+      </div>
+      <div class="footer-col">
+        <h5>Services</h5>
+        <a href="services/content.html">Content</a>
+        <a href="services/scripting.html">Scripting</a>
+        <a href="services/video.html">Video</a>
+        <a href="services/design.html">Design</a>
+        <a href="services/social.html">Social</a>
+        <a href="services/websites.html">Websites</a>
+        <a href="services/marketing.html">Marketing</a>
+      </div>
+      <div class="footer-col">
+        <h5>Connect</h5>
+        <a href="#" data-cursor="SOON">Instagram</a>
+        <a href="#" data-cursor="SOON">LinkedIn</a>
+        <a href="#" data-cursor="SOON">Behance</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; 2026 Lekhra Writes. All rights reserved.</span>
+      <span class="legal"><a href="#">Privacy</a><a href="#">Terms</a></span>
+    </div>
+  </div>
+</footer>
+<script src="js/main.js?v=9" defer></script>
+<script src="js/contact.js?v=9" defer></script>
+</body>
+</html>
