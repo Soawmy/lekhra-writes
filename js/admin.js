@@ -43,6 +43,27 @@
     return d.innerHTML;
   }
 
+   function fileToCompressedDataUrl(file, maxDim, quality){
+  return new Promise(function(resolve, reject){
+    var reader = new FileReader();
+    reader.onload = function(e){
+      var img = new Image();
+      img.onload = function(){
+        var scale = Math.min(1, maxDim / Math.max(img.width, img.height));
+        var canvas = document.createElement('canvas');
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = function(){ reject(new Error('Could not read that image.')); };
+      img.src = e.target.result;
+    };
+    reader.onerror = function(){ reject(new Error('Could not read that file.')); };
+    reader.readAsDataURL(file);
+  });
+}
+
   function showLogin(){
     loginView.style.display = 'block';
     dashboardView.style.display = 'none';
@@ -194,28 +215,34 @@
       });
     }
 
-    function renderEdit(){
-      wrap.innerHTML =
-        '<div style="display:flex; flex-direction:column; gap:8px; flex:1;">' +
-          '<input type="text" class="edit-title" value="' + esc(item.title) + '" placeholder="Title" style="background:var(--obsidian); border:1px solid rgba(241,238,231,0.14); border-radius:3px; padding:10px 12px; color:var(--ivory);">' +
-          '<input type="url" class="edit-image" value="' + esc(item.imageUrl || '') + '" placeholder="Image URL" style="background:var(--obsidian); border:1px solid rgba(241,238,231,0.14); border-radius:3px; padding:10px 12px; color:var(--ivory);">' +
-        '</div>' +
-        '<div class="ci-actions">' +
-          '<button type="button" class="edit-btn save-btn">Save</button>' +
-          '<button type="button" class="delete-btn cancel-btn">Cancel</button>' +
-        '</div>';
-      wrap.querySelector('.cancel-btn').addEventListener('click', renderView);
-      wrap.querySelector('.save-btn').addEventListener('click', function(){
-        var title = wrap.querySelector('.edit-title').value.trim();
-        var imageUrl = wrap.querySelector('.edit-image').value.trim();
-        if(!title) return;
-        fetch('/api/admin/case-studies', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: item.id, title: title, imageUrl: imageUrl })
-        }).then(function(){ loadCaseStudies(); });
-      });
-    }
+   function renderEdit(){
+     wrap.innerHTML =
+       '<div style="display:flex; flex-direction:column; gap:8px; flex:1;">' +
+         '<input type="text" class="edit-title" value="' + esc(item.title) + '" placeholder="Title" style="background:var(--obsidian); border:1px solid rgba(241,238,231,0.14); border-radius:3px; padding:10px 12px; color:var(--ivory);">' +
+         '<input type="file" class="edit-image" accept="image/*" style="color:var(--ivory); font-size:0.85rem;">' +
+         '<span style="font-size:0.78rem; color:var(--grey);">Leave blank to keep the current image.</span>' +
+       '</div>' +
+       '<div class="ci-actions">' +
+         '<button type="button" class="edit-btn save-btn">Save</button>' +
+         '<button type="button" class="delete-btn cancel-btn">Cancel</button>' +
+       '</div>';
+     wrap.querySelector('.cancel-btn').addEventListener('click', renderView);
+     wrap.querySelector('.save-btn').addEventListener('click', function(){
+       var title = wrap.querySelector('.edit-title').value.trim();
+       var file = wrap.querySelector('.edit-image').files[0];
+       if(!title) return;
+       var imageStep = file ? fileToCompressedDataUrl(file, 1200, 0.78) : Promise.resolve(undefined);
+       imageStep.then(function(imageUrl){
+         var payload = { id: item.id, title: title };
+         if(imageUrl !== undefined) payload.imageUrl = imageUrl;
+         return fetch('/api/admin/case-studies', {
+           method: 'PUT',
+           headers: { 'Content-Type': 'application/json' },
+           body: JSON.stringify(payload)
+         });
+       }).then(function(){ loadCaseStudies(); });
+     });
+   }
 
     renderView();
     return wrap;
@@ -239,37 +266,44 @@
     });
   }
 
-  caseStudyForm.addEventListener('submit', function(e){
-    e.preventDefault();
-    caseStudyMsg.textContent = '';
-    caseStudyMsg.className = 'form-msg';
-    var data = new FormData(caseStudyForm);
-    var payload = {
-      title: data.get('title'), category: data.get('category'),
-      challenge: data.get('challenge'), whatWeDid: data.get('whatWeDid'),
-      outcome: data.get('outcome'), link: data.get('link'), imageUrl: data.get('imageUrl')
-    };
-    fetch('/api/admin/case-studies', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    }).then(function(res){ return res.json().then(function(body){ return { ok: res.ok, body: body }; }); })
-      .then(function(result){
-        if(!result.ok){
-          caseStudyMsg.textContent = (result.body && result.body.error) || 'Could not add this project.';
-          caseStudyMsg.className = 'form-msg is-error';
-          return;
-        }
-        caseStudyMsg.textContent = 'Added — it\'s live on the Work page now.';
-        caseStudyMsg.className = 'form-msg is-ok';
-        caseStudyForm.reset();
-        loadCaseStudies();
-      })
-      .catch(function(){
-        caseStudyMsg.textContent = 'Could not reach the server.';
-        caseStudyMsg.className = 'form-msg is-error';
-      });
-  });
+   caseStudyForm.addEventListener('submit', function(e){
+     e.preventDefault();
+     caseStudyMsg.textContent = '';
+     caseStudyMsg.className = 'form-msg';
+     var data = new FormData(caseStudyForm);
+     var file = caseStudyForm.imageFile.files[0];
+   
+     var imageStep = file ? fileToCompressedDataUrl(file, 1200, 0.78) : Promise.resolve('');
+   
+     imageStep.then(function(imageUrl){
+       var payload = {
+         title: data.get('title'), category: data.get('category'),
+         challenge: data.get('challenge'), whatWeDid: data.get('whatWeDid'),
+         outcome: data.get('outcome'), link: data.get('link'), imageUrl: imageUrl
+       };
+       return fetch('/api/admin/case-studies', {
+         method: 'POST',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify(payload)
+       });
+     })
+       .then(function(res){ return res.json().then(function(body){ return { ok: res.ok, body: body }; }); })
+       .then(function(result){
+         if(!result.ok){
+           caseStudyMsg.textContent = (result.body && result.body.error) || 'Could not add this project.';
+           caseStudyMsg.className = 'form-msg is-error';
+           return;
+         }
+         caseStudyMsg.textContent = 'Added — it\'s live on the Work page now.';
+         caseStudyMsg.className = 'form-msg is-ok';
+         caseStudyForm.reset();
+         loadCaseStudies();
+       })
+       .catch(function(err){
+         caseStudyMsg.textContent = err.message || 'Could not reach the server.';
+         caseStudyMsg.className = 'form-msg is-error';
+       });
+   });
 
   loginForm.addEventListener('submit', function(e){
     e.preventDefault();
