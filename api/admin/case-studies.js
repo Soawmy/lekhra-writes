@@ -24,11 +24,17 @@ module.exports = async (req, res) => {
 
     if (req.method === 'POST') {
       const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
-      const { title, category, challenge, whatWeDid, outcome, link, imageUrl } = body;
+      const { title, category, challenge, whatWeDid, outcome, link, imageUrl, images } = body;
 
       if (!title || !category) {
         res.status(400).json({ error: 'Title and category are required' });
         return;
+      }
+
+      let imageList = Array.isArray(images) ? images.map(String).filter(Boolean) : [];
+      let cover = imageUrl ? String(imageUrl).trim() : (imageList[0] || '');
+      if (cover && !imageList.includes(cover)) {
+        imageList.unshift(cover);
       }
 
       const entry = {
@@ -39,7 +45,8 @@ module.exports = async (req, res) => {
         whatWeDid: whatWeDid ? String(whatWeDid).trim() : '',
         outcome: outcome ? String(outcome).trim() : '',
         link: link ? String(link).trim() : '',
-        imageUrl: imageUrl ? String(imageUrl).trim() : '',
+        imageUrl: cover,
+        images: imageList,
         createdAt: new Date().toISOString()
       };
 
@@ -51,7 +58,7 @@ module.exports = async (req, res) => {
 
     if (req.method === 'PUT') {
       const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
-      const { id, title, category, challenge, whatWeDid, outcome, link, imageUrl } = body;
+      const { id, title, category, challenge, whatWeDid, outcome, link, imageUrl, images } = body;
       if (!id) {
         res.status(400).json({ error: 'Missing id' });
         return;
@@ -72,7 +79,21 @@ module.exports = async (req, res) => {
       if (whatWeDid !== undefined) updated.whatWeDid = String(whatWeDid).trim();
       if (outcome !== undefined) updated.outcome = String(outcome).trim();
       if (link !== undefined) updated.link = String(link).trim();
-      if (imageUrl !== undefined) updated.imageUrl = String(imageUrl).trim();
+
+      if (images !== undefined) {
+        updated.images = Array.isArray(images) ? images.map(String).filter(Boolean) : [];
+      } else if (!updated.images) {
+        updated.images = updated.imageUrl ? [updated.imageUrl] : [];
+      }
+
+      if (imageUrl !== undefined) {
+        updated.imageUrl = String(imageUrl).trim();
+        if (updated.imageUrl && !updated.images.includes(updated.imageUrl)) {
+          updated.images.unshift(updated.imageUrl);
+        }
+      } else if (!updated.imageUrl && updated.images.length > 0) {
+        updated.imageUrl = updated.images[0];
+      }
 
       // Redis lists have no "update in place" — remove the exact old
       // entry and push the updated one back to the front.
