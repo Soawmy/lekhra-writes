@@ -1,5 +1,7 @@
 {
+  "buildCommand": "node build.js",
   "outputDirectory": "public",
+  "cleanUrls": true,
   "headers": [
     {
       "source": "/css/(.*)",
