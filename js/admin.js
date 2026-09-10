@@ -216,11 +216,20 @@
     }
 
    function renderEdit(){
+     var catOpts = ['Content', 'Script', 'Video', 'Design', 'Social', 'Website', 'Marketing'].map(function(c){
+       return '<option value="'+c+'"'+(item.category===c?' selected':'')+'>'+c+'</option>';
+     }).join('');
+     var inpStyle = 'background:var(--obsidian); border:1px solid rgba(241,238,231,0.14); border-radius:3px; padding:10px 12px; color:var(--ivory); font-size:0.85rem; font-family:inherit;';
      wrap.innerHTML =
        '<div style="display:flex; flex-direction:column; gap:8px; flex:1;">' +
-         '<input type="text" class="edit-title" value="' + esc(item.title) + '" placeholder="Title" style="background:var(--obsidian); border:1px solid rgba(241,238,231,0.14); border-radius:3px; padding:10px 12px; color:var(--ivory);">' +
+         '<input type="text" class="edit-title" value="' + esc(item.title) + '" placeholder="Title" style="'+inpStyle+'">' +
+         '<select class="edit-category" style="'+inpStyle+'">' + catOpts + '</select>' +
+         '<textarea class="edit-challenge" placeholder="The challenge" rows="2" style="'+inpStyle+'">' + esc(item.challenge || '') + '</textarea>' +
+         '<textarea class="edit-whatwedid" placeholder="What we did" rows="2" style="'+inpStyle+'">' + esc(item.whatWeDid || '') + '</textarea>' +
+         '<textarea class="edit-outcome" placeholder="The outcome" rows="2" style="'+inpStyle+'">' + esc(item.outcome || '') + '</textarea>' +
+         '<input type="url" class="edit-link" value="' + esc(item.link || '') + '" placeholder="Live link (optional)" style="'+inpStyle+'">' +
          '<input type="file" class="edit-image" accept="image/*" style="color:var(--ivory); font-size:0.85rem;">' +
-         '<input type="url" class="edit-image-url" placeholder="Or image URL..." style="background:var(--obsidian); border:1px solid rgba(241,238,231,0.14); border-radius:3px; padding:10px 12px; color:var(--ivory); font-size:0.85rem;">' +
+         '<input type="url" class="edit-image-url" placeholder="Or image URL..." style="'+inpStyle+'">' +
          '<span style="font-size:0.78rem; color:var(--grey);">Leave blank to keep the current image.</span>' +
        '</div>' +
        '<div class="ci-actions">' +
@@ -230,6 +239,11 @@
      wrap.querySelector('.cancel-btn').addEventListener('click', renderView);
      wrap.querySelector('.save-btn').addEventListener('click', function(){
        var title = wrap.querySelector('.edit-title').value.trim();
+       var category = wrap.querySelector('.edit-category').value.trim();
+       var challenge = wrap.querySelector('.edit-challenge').value.trim();
+       var whatWeDid = wrap.querySelector('.edit-whatwedid').value.trim();
+       var outcome = wrap.querySelector('.edit-outcome').value.trim();
+       var link = wrap.querySelector('.edit-link').value.trim();
        var file = wrap.querySelector('.edit-image').files[0];
        var urlVal = wrap.querySelector('.edit-image-url').value.trim();
        if(!title) return;
@@ -238,7 +252,11 @@
        else if(urlVal) imageStep = Promise.resolve(urlVal);
        else imageStep = Promise.resolve(undefined);
        imageStep.then(function(imageUrl){
-         var payload = { id: item.id, title: title };
+         var payload = { 
+           id: item.id, title: title, category: category,
+           challenge: challenge, whatWeDid: whatWeDid, 
+           outcome: outcome, link: link 
+         };
          if(imageUrl !== undefined) payload.imageUrl = imageUrl;
          return fetch('/api/admin/case-studies', {
            method: 'PUT',
