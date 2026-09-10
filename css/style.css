@@ -804,6 +804,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 
 .case-study-grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap:24px; }
 .case-study-card{
+  display: flex; flex-direction: column; height: 100%;
   border: 1px solid rgba(241,238,231,0.12); border-radius:8px; padding: clamp(26px,4vw,34px);
   background: rgba(255,255,255,0.015); transition: transform .4s var(--ease), border-color .4s var(--ease);
   overflow:hidden;
@@ -819,8 +820,11 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   color: var(--gold); border:1px solid rgba(200,164,93,0.3); border-radius:20px; padding:5px 14px;
 }
 .case-study-card .cs-title{ font-size:1.4rem; margin:16px 0 14px; }
+.case-study-card .cs-body{ flex: 1; display: flex; flex-direction: column; }
 .case-study-card .cs-body p{ margin-bottom:12px; font-size:0.92rem; color: var(--grey); line-height:1.5; }
 .case-study-card .cs-body strong{ display:block; color: var(--ivory); font-size:0.7rem; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:4px; font-weight:600; }
+
+.case-study-card .cs-link{ margin-top: auto !important; align-self: flex-start; }
 
 .filter-row{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom: 40px; }
 
