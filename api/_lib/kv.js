@@ -1,51 +1,29 @@
-const store = new Map();
+const UPSTASH_URL = process.env.UPSTASH_REDIS_REST_URL || 'REPLACE_WITH_YOUR_UPSTASH_REST_URL';
+const UPSTASH_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN || 'REPLACE_WITH_YOUR_UPSTASH_REST_TOKEN';
 
 async function redis(command) {
-  const [cmd, key, ...args] = command;
-
-  const k = key;
-  if (cmd.toUpperCase() === 'GET') {
-    return store.get(k) || null;
-  }
-  if (cmd.toUpperCase() === 'SET') {
-    store.set(k, args[0]);
-    return 'OK';
-  }
-  if (cmd.toUpperCase() === 'DEL') {
-    store.delete(k);
-    return 1;
-  }
-  if (cmd.toUpperCase() === 'INCR') {
-    const n = (store.get(k) || 0) + 1;
-    store.set(k, n);
-    return n;
-  }
-  if (cmd.toUpperCase() === 'LPUSH') {
-    let arr = store.get(k) || [];
-    arr.unshift(args[0]);
-    store.set(k, arr);
-    return arr.length;
-  }
-  if (cmd.toUpperCase() === 'LTRIM') {
-    let arr = store.get(k) || [];
-    arr = arr.slice(parseInt(args[0]), parseInt(args[1]) + 1);
-    store.set(k, arr);
-    return 'OK';
-  }
-  if (cmd.toUpperCase() === 'LRANGE') {
-    let arr = store.get(k) || [];
-    return arr.slice(parseInt(args[0]), parseInt(args[1]) + 1);
+  if (UPSTASH_URL.indexOf('REPLACE_WITH') === 0 || UPSTASH_TOKEN.indexOf('REPLACE_WITH') === 0) {
+    throw new Error(
+      'Upstash Redis is not configured yet. Open api/_lib/kv.js and paste in your ' +
+      'UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN — see the "One-time setup" ' +
+      'section in README.md (it takes about 2 minutes, free, no credit card).'
+    );
   }
 
-  if (cmd.toUpperCase() === 'LREM') {
-    let arr = store.get(k) || [];
-    const value = args[1];
-    const newArr = arr.filter(el => el !== value);
-    store.set(k, newArr);
-    return arr.length - newArr.length;
+  const res = await fetch(UPSTASH_URL, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${UPSTASH_TOKEN}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(command)
+  });
+  
+  const data = await res.json();
+  if (data.error) {
+    throw new Error('Upstash error: ' + data.error);
   }
-
-  return null;
+  return data.result;
 }
 
 module.exports = { redis };
