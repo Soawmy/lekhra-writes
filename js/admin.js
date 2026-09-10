@@ -220,6 +220,7 @@
        '<div style="display:flex; flex-direction:column; gap:8px; flex:1;">' +
          '<input type="text" class="edit-title" value="' + esc(item.title) + '" placeholder="Title" style="background:var(--obsidian); border:1px solid rgba(241,238,231,0.14); border-radius:3px; padding:10px 12px; color:var(--ivory);">' +
          '<input type="file" class="edit-image" accept="image/*" style="color:var(--ivory); font-size:0.85rem;">' +
+         '<input type="url" class="edit-image-url" placeholder="Or image URL..." style="background:var(--obsidian); border:1px solid rgba(241,238,231,0.14); border-radius:3px; padding:10px 12px; color:var(--ivory); font-size:0.85rem;">' +
          '<span style="font-size:0.78rem; color:var(--grey);">Leave blank to keep the current image.</span>' +
        '</div>' +
        '<div class="ci-actions">' +
@@ -230,8 +231,12 @@
      wrap.querySelector('.save-btn').addEventListener('click', function(){
        var title = wrap.querySelector('.edit-title').value.trim();
        var file = wrap.querySelector('.edit-image').files[0];
+       var urlVal = wrap.querySelector('.edit-image-url').value.trim();
        if(!title) return;
-       var imageStep = file ? fileToCompressedDataUrl(file, 1200, 0.78) : Promise.resolve(undefined);
+       var imageStep;
+       if(file) imageStep = fileToCompressedDataUrl(file, 1200, 0.78);
+       else if(urlVal) imageStep = Promise.resolve(urlVal);
+       else imageStep = Promise.resolve(undefined);
        imageStep.then(function(imageUrl){
          var payload = { id: item.id, title: title };
          if(imageUrl !== undefined) payload.imageUrl = imageUrl;
@@ -272,8 +277,9 @@
      caseStudyMsg.className = 'form-msg';
      var data = new FormData(caseStudyForm);
      var file = caseStudyForm.imageFile.files[0];
+     var urlInput = data.get('imageUrlInput');
    
-     var imageStep = file ? fileToCompressedDataUrl(file, 1200, 0.78) : Promise.resolve('');
+     var imageStep = file ? fileToCompressedDataUrl(file, 1200, 0.78) : Promise.resolve(urlInput || '');
    
      imageStep.then(function(imageUrl){
        var payload = {
