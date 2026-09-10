@@ -6,7 +6,6 @@
 (function(){
   "use strict";
 
-  var loading = document.getElementById('work-loading');
   var empty = document.getElementById('work-empty');
   var grid = document.getElementById('work-grid');
   var template = document.getElementById('case-study-template');
@@ -167,11 +166,21 @@
     .then(function(res){ return res.json(); })
     .then(function(data){
       var items = (data && data.items) || [];
-      if(loading) loading.style.display = 'none';
 
       if(!items.length){
-        if(empty) empty.style.display = '';
         return;
+      }
+
+      if(empty) empty.style.display = 'none';
+      if(grid) grid.style.display = '';
+
+      var isHome = !!document.getElementById('home-work-heading');
+      if (isHome) {
+        items = items.slice(0, 4);
+        var moreBtn = document.getElementById('home-work-more');
+        if(moreBtn && data.items.length > 4) {
+          moreBtn.style.display = 'block';
+        }
       }
 
       items.forEach(function(item){
