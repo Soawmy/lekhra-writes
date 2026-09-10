@@ -30,13 +30,13 @@ app.all('/api/admin/settings', adapt(require('./api/admin/settings')));
 app.all('/api/admin/submissions', adapt(require('./api/admin/submissions')));
 
 // Serve static directory
-app.use(express.static(path.join(__dirname, '.'), {
+app.use(express.static(path.join(__dirname, 'public'), {
   extensions: ['html']
 }));
 
 // Route for root and clean URLs
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.listen(PORT, '0.0.0.0', () => {
