@@ -20,8 +20,10 @@ const adapt = (handler) => async (req, res) => {
 
 // API endpoints matching Vercel functions
 app.all('/api/case-studies', adapt(require('./api/case-studies')));
+app.all('/api/design-grids', adapt(require('./api/design-grids')));
 app.all('/api/submit', adapt(require('./api/submit')));
 app.all('/api/admin/case-studies', adapt(require('./api/admin/case-studies')));
+app.all('/api/admin/design-grids', adapt(require('./api/admin/design-grids')));
 app.all('/api/admin/login', adapt(require('./api/admin/login')));
 app.all('/api/admin/logout', adapt(require('./api/admin/logout')));
 app.all('/api/admin/settings', adapt(require('./api/admin/settings')));

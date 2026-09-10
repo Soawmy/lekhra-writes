@@ -75,6 +75,7 @@
     loadSettings();
     loadSubmissions();
     loadCaseStudies();
+    loadDesignGrids();
   }
 
   function renderEmailList(){
@@ -545,6 +546,159 @@
         settingsMsg.className = 'form-msg is-error';
       });
   });
+
+  // --- Design Showcase Grids Manager ---
+  var designGridsManager = document.getElementById('design-grids-manager');
+  var designGridsMsg = document.getElementById('design-grids-msg');
+  var currentDesignGrids = [];
+
+  var DEFAULT_DESIGN_GRIDS = [
+    { id: 'grid-1', title: 'Visual Identity', imageUrl: '', defaultClass: 'a1' },
+    { id: 'grid-2', title: 'Social Design', imageUrl: '', defaultClass: 'a2' },
+    { id: 'grid-3', title: 'Thumbnails', imageUrl: '', defaultClass: 'a3' },
+    { id: 'grid-4', title: 'Brand Assets', imageUrl: '', defaultClass: 'a4' }
+  ];
+
+  function renderDesignGrids(){
+    if(!designGridsManager) return;
+    designGridsManager.innerHTML = '';
+
+    currentDesignGrids.forEach(function(item, idx){
+      var hasImg = Boolean(item.imageUrl && item.imageUrl.trim());
+      var card = document.createElement('div');
+      card.className = 'dg-card';
+
+      var defaultClass = item.defaultClass || ('a' + (idx + 1));
+      var previewHtml = hasImg
+        ? '<div class="dg-preview-wrap has-custom-img">' +
+            '<img class="dg-preview-img" src="' + esc(item.imageUrl) + '" alt="">' +
+            '<span>' + esc(item.title) + '</span>' +
+          '</div>'
+        : '<div class="dg-preview-wrap ' + defaultClass + '">' +
+            '<span>' + esc(item.title) + '</span>' +
+          '</div>';
+
+      var statusBadge = hasImg
+        ? '<span class="dg-status-badge is-custom">&#9733; Custom Picture Active</span>'
+        : '<span class="dg-status-badge is-default">Original Geometric Design</span>';
+
+      card.innerHTML =
+        '<div class="dg-card-header">' +
+          '<div class="dg-card-title">' + esc(item.title) + '</div>' +
+          statusBadge +
+        '</div>' +
+        previewHtml +
+        '<div class="dg-inputs">' +
+          '<label class="field" style="margin-bottom:0; font-size:0.75rem;">Upload new picture:' +
+            '<input type="file" class="dg-file-input" accept="image/*" style="margin-top:4px; font-size:0.8rem; color:var(--ivory);">' +
+          '</label>' +
+          '<input type="url" class="dg-url-input" placeholder="Or paste image URL (https://...)" style="background:var(--obsidian); border:1px solid rgba(241,238,231,0.14); border-radius:3px; padding:9px 11px; color:var(--ivory); font-size:0.82rem; margin-top:2px;">' +
+        '</div>' +
+        '<div class="dg-actions">' +
+          '<button type="button" class="btn btn-ghost dg-save-btn" style="padding:9px 14px; font-size:0.78rem;"><span>Save Picture</span></button>' +
+          (hasImg
+            ? '<button type="button" class="btn btn-ghost dg-reset-btn" style="padding:9px 14px; font-size:0.78rem; border-color:rgba(255,100,100,0.3); color:#ff9999;"><span>Remove (Restore Default)</span></button>'
+            : '') +
+        '</div>';
+
+      var fileInp = card.querySelector('.dg-file-input');
+      var urlInp = card.querySelector('.dg-url-input');
+      var saveBtn = card.querySelector('.dg-save-btn');
+      var resetBtn = card.querySelector('.dg-reset-btn');
+
+      saveBtn.addEventListener('click', function(){
+        designGridsMsg.textContent = '';
+        designGridsMsg.className = 'form-msg';
+
+        var file = fileInp.files && fileInp.files[0];
+        var urlVal = (urlInp.value || '').trim();
+
+        if(!file && !urlVal){
+          designGridsMsg.textContent = 'Please choose an image file or paste an image URL first.';
+          designGridsMsg.className = 'form-msg is-error';
+          return;
+        }
+
+        saveBtn.disabled = true;
+        var step = file ? fileToCompressedDataUrl(file, 1200, 0.8) : Promise.resolve(urlVal);
+        step.then(function(imgUrl){
+          currentDesignGrids[idx].imageUrl = imgUrl;
+          return fetch('/api/admin/design-grids', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ grids: currentDesignGrids })
+          });
+        })
+          .then(function(res){ return res.json().then(function(b){ return { ok: res.ok, body: b }; }); })
+          .then(function(result){
+            saveBtn.disabled = false;
+            if(!result.ok){
+              designGridsMsg.textContent = (result.body && result.body.error) || 'Could not save picture.';
+              designGridsMsg.className = 'form-msg is-error';
+              return;
+            }
+            designGridsMsg.textContent = 'Saved picture for "' + item.title + '" — it\'s live on the Design page.';
+            designGridsMsg.className = 'form-msg is-ok';
+            renderDesignGrids();
+          })
+          .catch(function(err){
+            saveBtn.disabled = false;
+            designGridsMsg.textContent = err.message || 'Error saving picture.';
+            designGridsMsg.className = 'form-msg is-error';
+          });
+      });
+
+      if(resetBtn){
+        resetBtn.addEventListener('click', function(){
+          if(!confirm('Remove custom picture for "' + item.title + '" and restore the original geometric design?')) return;
+          designGridsMsg.textContent = '';
+          designGridsMsg.className = 'form-msg';
+          currentDesignGrids[idx].imageUrl = '';
+
+          fetch('/api/admin/design-grids', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ grids: currentDesignGrids })
+          })
+            .then(function(res){ return res.json().then(function(b){ return { ok: res.ok, body: b }; }); })
+            .then(function(result){
+              if(!result.ok){
+                designGridsMsg.textContent = (result.body && result.body.error) || 'Could not reset picture.';
+                designGridsMsg.className = 'form-msg is-error';
+                return;
+              }
+              designGridsMsg.textContent = 'Restored original geometric design for "' + item.title + '".';
+              designGridsMsg.className = 'form-msg is-ok';
+              renderDesignGrids();
+            })
+            .catch(function(err){
+              designGridsMsg.textContent = err.message || 'Error restoring default design.';
+              designGridsMsg.className = 'form-msg is-error';
+            });
+        });
+      }
+
+      designGridsManager.appendChild(card);
+    });
+  }
+
+  function loadDesignGrids(){
+    if(!designGridsManager) return;
+    designGridsManager.innerHTML = '<p class="empty-note">Loading design grids&hellip;</p>';
+    fetch('/api/admin/design-grids')
+      .then(function(res){
+        if(res.status === 401){ showLogin(); return null; }
+        return res.json();
+      })
+      .then(function(data){
+        if(!data) return;
+        currentDesignGrids = (data.grids && data.grids.length) ? data.grids : DEFAULT_DESIGN_GRIDS.slice();
+        renderDesignGrids();
+      })
+      .catch(function(){
+        designGridsManager.innerHTML = '<p class="empty-note">Couldn\'t load design grids right now.</p>';
+      });
+  }
 
   logoutBtn.addEventListener('click', function(){
     fetch('/api/admin/logout', { method: 'POST' }).then(function(){ showLogin(); });
