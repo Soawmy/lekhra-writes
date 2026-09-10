@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Work — Lekhra Writes</title>
+<meta name="description" content="The Lekhra Writes portfolio — real projects only, populated as they're delivered.">
+<meta property="og:title" content="Work — Lekhra Writes">
+<meta property="og:description" content="The Lekhra Writes portfolio — real projects only, populated as they're delivered.">
+<meta property="og:type" content="website">
+<link rel="icon" href="assets/logo-mark.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@300;400;500;600;700&display=swap">
+<link rel="stylesheet" href="css/style.css?v=12">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div id="page-transition"><div class="sheet"></div><div class="ink"></div></div>
+<nav class="site-nav">
+  <div class="container">
+    <a href="index.html" class="nav-logo" data-cursor="HOME"><img src="assets/logo-mark.png" alt="Lekhra Writes" width="30" height="30"> LEKHRA WRITES</a>
+    <div class="nav-links">
+      <a href="work.html" class=" is-active">Work</a>
+      <a href="services/index.html">Services</a>
+      <a href="studio.html">Studio</a>
+      <a href="process.html">Process</a>
+      <a href="contact.html" class="nav-cta ">Contact</a>
+    </div>
+    <button class="nav-burger" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+<div class="mobile-menu">
+  <a href="work.html">Work</a>
+  <a href="services/index.html">Services</a>
+  <a href="studio.html">Studio</a>
+  <a href="process.html">Process</a>
+  <a href="contact.html">Contact</a>
+</div>
+
+<main id="main">
+<section class="section--dark pad" style="padding-top: calc(var(--nav-h) + 50px); position:relative;">
+  <div class="ambient-glow ambient-glow--dim ambient-glow--tr"></div>
+  <div class="container">
+    <p class="eyebrow reveal">Work</p>
+    <h1 class="serif reveal reveal-1" style="font-size: clamp(2.2rem,5.6vw,4rem); max-width:16ch; margin-top:20px;">THE PORTFOLIO IS BEING WRITTEN.</h1>
+    <p class="grey-text reveal reveal-2" style="max-width:50ch; margin-top:22px;">Every project here is real &mdash; a real brief, a real challenge, a real outcome. Nothing invented to fill the space.</p>
+  </div>
+</section>
+
+<section class="section--dark pad-sm">
+  <div class="container">
+    <div id="work-loading" class="grey-text reveal" style="font-size:0.9rem;">Loading projects&hellip;</div>
+
+    <div id="work-empty" class="empty-state reveal reveal-1" style="display:none;">
+      <div class="e-mark serif">&mdash;</div>
+      <p style="max-width:46ch; margin:0 auto; color:var(--grey);">No projects yet. The first one lands here the day it's delivered &mdash; visual, challenge, what we did, and the real outcome.</p>
+      <a href="contact.html" class="btn btn-ghost" style="margin-top:24px;"><span>Be the First Project</span><span class="arrow">&rarr;</span></a>
+    </div>
+
+    <div id="work-grid" class="case-study-grid" style="display:none;"></div>
+  </div>
+</section>
+</main>
+
+<!-- Case Study Profile Popup Modal -->
+<div id="cs-modal" class="cs-modal-overlay" style="display:none;" aria-hidden="true" role="dialog" aria-modal="true">
+  <div class="cs-modal-backdrop"></div>
+  <div class="cs-modal-dialog">
+    <button type="button" class="cs-modal-close" aria-label="Close modal">&times;</button>
+    <div class="cs-modal-layout">
+      <!-- Left side: image gallery -->
+      <div class="cs-modal-gallery">
+        <div class="cs-modal-main-img-wrap">
+          <img id="cs-modal-active-img" src="" alt="" class="cs-modal-main-img">
+          <button type="button" class="cs-modal-nav cs-modal-prev" aria-label="Previous image">&lsaquo;</button>
+          <button type="button" class="cs-modal-nav cs-modal-next" aria-label="Next image">&rsaquo;</button>
+          <div class="cs-modal-counter" id="cs-modal-counter">1 / 1</div>
+        </div>
+        <div class="cs-modal-thumbs" id="cs-modal-thumbs"></div>
+      </div>
+      <!-- Right side: profile details -->
+      <div class="cs-modal-info">
+        <div class="cs-modal-header">
+          <span class="cs-category" id="cs-modal-category"></span>
+          <h2 class="serif cs-modal-title" id="cs-modal-title"></h2>
+        </div>
+        <div class="cs-modal-body">
+          <div class="cs-modal-section">
+            <h4>The Challenge</h4>
+            <p id="cs-modal-challenge"></p>
+          </div>
+          <div class="cs-modal-section">
+            <h4>What We Did</h4>
+            <p id="cs-modal-whatwedid"></p>
+          </div>
+          <div class="cs-modal-section">
+            <h4>The Outcome</h4>
+            <p id="cs-modal-outcome"></p>
+          </div>
+        </div>
+        <div class="cs-modal-footer">
+          <a id="cs-modal-link" href="#" target="_blank" rel="noopener" class="btn btn-ghost" style="display:none;">
+            <span>View Live Project</span><span class="arrow">&rarr;</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<template id="case-study-template">
+  <article class="case-study-card reveal" tabindex="0" role="button" aria-label="View case study">
+    <div class="cs-image-wrap">
+      <img class="cs-image" src="" alt="" loading="lazy">
+      <span class="cs-badge-photos" style="display:none;"></span>
+    </div>
+    <span class="cs-category"></span>
+    <h3 class="serif cs-title"></h3>
+    <div class="cs-body">
+      <p><strong>The challenge</strong><span class="cs-challenge"></span></p>
+      <p><strong>What we did</strong><span class="cs-whatwedid"></span></p>
+      <p><strong>The outcome</strong><span class="cs-outcome"></span></p>
+    </div>
+    <div class="cs-card-footer">
+      <span class="cs-click-hint"><span>View Profile</span><span>&rarr;</span></span>
+      <a class="cs-link btn btn-ghost" href="#" target="_blank" rel="noopener" style="display:none;"><span>Live link</span><span class="arrow">&rarr;</span></a>
+    </div>
+  </article>
+</template>
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="index.html" class="nav-logo"><img src="assets/logo-mark.png" alt="Lekhra Writes" width="30" height="30"> LEKHRA WRITES</a>
+        <p>Stories. Scripted. Memorable.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Studio</h5>
+        <a href="work.html">Work</a>
+        <a href="services/index.html">Services</a>
+        <a href="studio.html">Studio</a>
+        <a href="process.html">Process</a>
+        <a href="contact.html">Contact</a>
+      </div>
+      <div class="footer-col">
+        <h5>Services</h5>
+        <a href="services/content.html">Content</a>
+        <a href="services/scripting.html">Scripting</a>
+        <a href="services/video.html">Video</a>
+        <a href="services/design.html">Design</a>
+        <a href="services/social.html">Social</a>
+        <a href="services/websites.html">Websites</a>
+        <a href="services/marketing.html">Marketing</a>
+      </div>
+      <div class="footer-col">
+        <h5>Connect</h5>
+        <a href="#" data-cursor="SOON">Instagram</a>
+        <a href="#" data-cursor="SOON">LinkedIn</a>
+        <a href="#" data-cursor="SOON">Behance</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; 2026 Lekhra Writes. All rights reserved.</span>
+      <span class="legal"><a href="#">Privacy</a><a href="#">Terms</a></span>
+    </div>
+  </div>
+</footer>
+<script src="js/main.js?v=10" defer></script>
+<script src="js/work.js?v=3" defer></script>
+</body>
+</html>
