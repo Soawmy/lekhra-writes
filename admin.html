@@ -28,11 +28,40 @@
     color: var(--ivory); font-size:0.95rem; text-transform:none; letter-spacing:normal; transition: border-color .3s ease; font-family: var(--font-sans);
   }
   .field input:focus, .field select:focus, .field textarea:focus{ border-color: var(--gold); outline:none; }
-  .cs-item{ border:1px solid rgba(241,238,231,0.1); border-radius:6px; padding:16px 18px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:flex-start; gap:16px; }
+  .cs-item{ border:1px solid rgba(241,238,231,0.1); border-radius:6px; padding:16px 18px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap; }
   .cs-item .cs-item-title{ font-family: var(--font-display); font-size:1.05rem; }
   .cs-item .cs-item-cat{ color: var(--gold); font-size:0.72rem; letter-spacing:0.08em; text-transform:uppercase; margin-top:4px; }
-  .cs-item button.delete-btn{ font-size:0.72rem; letter-spacing:0.08em; text-transform:uppercase; color:#d98a7a; border:1px solid rgba(217,138,122,0.3); border-radius:20px; padding:7px 14px; flex-shrink:0; }
-  .cs-item button.delete-btn:hover{ background: rgba(217,138,122,0.1); }
+  .cs-item .ci-actions, .ci-actions{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  .cs-item button.edit-btn, .ci-actions button.edit-btn{
+    font-size:0.72rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--ivory);
+    border:1px solid rgba(241,238,231,0.22); border-radius:20px; padding:7px 16px;
+    background:transparent; cursor:pointer; transition:border-color .2s, color .2s, background .2s;
+    font-family: var(--font-sans);
+  }
+  .cs-item button.edit-btn:hover, .ci-actions button.edit-btn:hover{
+    border-color:var(--gold); color:var(--gold); background:rgba(200,164,93,0.08);
+  }
+  .cs-item button.delete-btn, .ci-actions button.delete-btn{
+    font-size:0.72rem; letter-spacing:0.08em; text-transform:uppercase; color:#d98a7a;
+    border:1px solid rgba(217,138,122,0.35); border-radius:20px; padding:7px 16px;
+    background:transparent; cursor:pointer; flex-shrink:0; transition:border-color .2s, background .2s;
+    font-family: var(--font-sans);
+  }
+  .cs-item button.delete-btn:hover, .ci-actions button.delete-btn:hover{
+    background: rgba(217,138,122,0.12); border-color:#d98a7a;
+  }
+  .dg-thumb-box{
+    width:54px; height:54px; background:#070709; border:1px solid rgba(241,238,231,0.14);
+    border-radius:4px; overflow:hidden; position:relative; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .dg-thumb-box.a1{ background: linear-gradient(155deg, #C8A45D, #6b5223); }
+  .dg-thumb-box.a2{ background: linear-gradient(155deg, #222, #080808); border: 1px solid rgba(200,164,93,0.4); }
+  .dg-thumb-box.a3{ background: repeating-linear-gradient(45deg, #C8A45D 0 2px, #070709 2px 8px); }
+  .dg-thumb-box.a4{ background: radial-gradient(circle at 30% 30%, #E4CC98, #080808 70%); }
+  .dg-thumb-box.has-custom-img{ background:#070709; }
+  .dg-thumb-box img{ width:100%; height:100%; object-fit:cover; }
+  .dg-thumb-num{ font-family:var(--font-display); font-size:0.85rem; color:var(--ivory); opacity:0.85; }
   .email-item{ border:1px solid rgba(241,238,231,0.1); border-radius:6px; padding:12px 16px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; gap:16px; }
   .email-item span{ font-size:0.92rem; }
   .form-msg{ font-size:0.82rem; margin-top:6px; min-height:1.2em; }
@@ -137,7 +166,7 @@
   <div class="admin-card">
     <h2>Design Page Showcase Grids</h2>
     <p class="sub">Add, change, or remove pictures for each grid on the Design &amp; Branding page (<code>/services/design.html</code>). If you don't add a picture or if you remove it, the grid retains its original geometric design automatically.</p>
-    <div id="design-grids-manager" class="dg-manager-grid"></div>
+    <div id="design-grids-manager" style="margin-top:16px;"></div>
     <p id="design-grids-msg" class="form-msg" style="margin-top:14px;"></p>
   </div>
 
@@ -148,6 +177,6 @@
   </div>
 </div>
 
-<script src="js/admin.js?v=6" defer></script>
+<script src="js/admin.js?v=7" defer></script>
 </body>
 </html>
