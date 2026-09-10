@@ -10,6 +10,11 @@
   var grid = document.getElementById('work-grid');
   var template = document.getElementById('case-study-template');
   var modal = document.getElementById('cs-modal');
+  var workHeading = document.getElementById('work-heading');
+  var workSubtitle = document.getElementById('work-subtitle');
+  var homeHeading = document.getElementById('home-work-heading');
+  var homeMore = document.getElementById('home-work-more');
+
   if(!grid || !template) return;
 
   var modalCloseBtn = modal ? modal.querySelector('.cs-modal-close') : null;
@@ -162,97 +167,156 @@
     });
   }
 
+  function hideEmptyState(){
+    if(!empty) return;
+    empty.classList.add('is-hidden');
+    empty.style.setProperty('display', 'none', 'important');
+    empty.hidden = true;
+  }
+
+  function showEmptyState(){
+    if(!empty) return;
+    empty.classList.remove('is-hidden');
+    empty.style.setProperty('display', 'block', 'important');
+    empty.hidden = false;
+  }
+
   fetch('/api/case-studies')
-    .then(function(res){ return res.json(); })
-    .then(function(data){
-      var items = (data && data.items) || [];
-
-      if(!items.length){
-        return;
-      }
-
-      if(empty) empty.style.display = 'none';
-      if(grid) grid.style.display = '';
-
-      var isHome = !!document.getElementById('home-work-heading');
-      if (isHome) {
-        items = items.slice(0, 4);
-        var moreBtn = document.getElementById('home-work-more');
-        if(moreBtn && data.items.length > 4) {
-          moreBtn.style.display = 'block';
-        }
-      }
-
-      items.forEach(function(item){
-        var node = template.content.cloneNode(true);
-        var card = node.querySelector('.case-study-card');
-        var imageWrap = node.querySelector('.cs-image-wrap');
-        var cardImg = node.querySelector('.cs-image');
-        var badgePhotos = node.querySelector('.cs-badge-photos');
-
-        // Determine list of images
-        var images = Array.isArray(item.images) && item.images.length > 0
-          ? item.images
-          : (item.imageUrl ? [item.imageUrl] : []);
-
-        // The designated cover image
-        var coverImg = item.imageUrl || (images.length > 0 ? images[0] : '');
-
-        // Find cover index in images
-        var coverIndex = images.indexOf(coverImg);
-        if(coverIndex === -1 && coverImg){
-          images.unshift(coverImg);
-          coverIndex = 0;
-        }
-
-        if(coverImg && cardImg){
-          cardImg.src = coverImg;
-          cardImg.alt = item.title || 'Case study preview';
-          if(images.length > 1 && badgePhotos){
-            badgePhotos.textContent = '✦ ' + images.length + ' images';
-            badgePhotos.style.display = 'inline-flex';
-          }
-        } else if(imageWrap){
-          imageWrap.remove();
-        }
-
-        node.querySelector('.cs-category').textContent = item.category || '';
-        node.querySelector('.cs-title').textContent = item.title || '';
-        node.querySelector('.cs-challenge').textContent = item.challenge || '\u2014';
-        node.querySelector('.cs-whatwedid').textContent = item.whatWeDid || '\u2014';
-        node.querySelector('.cs-outcome').textContent = item.outcome || '\u2014';
-
-        var link = node.querySelector('.cs-link');
-        if(item.link){
-          link.href = item.link;
-          link.style.display = 'inline-flex';
-          link.addEventListener('click', function(e){
-            // Prevent card click modal trigger when clicking direct external link
-            e.stopPropagation();
-          });
-        }
-
-        if(card){
-          card.addEventListener('click', function(){
-            openModal(item, images, Math.max(0, coverIndex));
-          });
-          card.addEventListener('keydown', function(e){
-            if(e.key === 'Enter' || e.key === ' '){
-              e.preventDefault();
-              openModal(item, images, Math.max(0, coverIndex));
-            }
-          });
-        }
-
-        grid.appendChild(node);
-      });
-      grid.style.display = 'grid';
-
-      // Re-trigger reveal animation observer for newly inserted elements
-      document.dispatchEvent(new CustomEvent('lw:content-inserted'));
+    .then(function(res){
+      if(!res.ok) throw new Error('API request failed with status ' + res.status);
+      return res.json();
     })
-    .catch(function(){
-      if(loading) loading.style.display = 'none';
-      if(empty) empty.style.display = '';
+    .then(function(data){
+      var items = (data && Array.isArray(data.items)) ? data.items : [];
+
+      if(items.length > 0){
+        // 1. Permanently hide the empty state
+        hideEmptyState();
+
+        // 2. Update page headings to reflect active work
+        if(workHeading){
+          workHeading.textContent = 'SELECTED WORK.';
+        }
+        if(workSubtitle){
+          workSubtitle.textContent = 'Every project here is real \u2014 a real brief, a real challenge, a real outcome. Delivered across content, scripting, video, and design.';
+        }
+        if(homeHeading){
+          homeHeading.textContent = 'SELECTED WORK.';
+        }
+
+        // 3. Prepare items for display (Home page displays up to 4 items)
+        var isHome = !!homeHeading;
+        var displayItems = items;
+        if(isHome){
+          displayItems = items.slice(0, 4);
+          if(homeMore){
+            if(items.length > 4){
+              homeMore.style.setProperty('display', 'block', 'important');
+            } else {
+              homeMore.style.setProperty('display', 'none', 'important');
+            }
+          }
+        }
+
+        // 4. Clear grid before populating
+        grid.innerHTML = '';
+
+        // 5. Populate cards
+        displayItems.forEach(function(item){
+          var node = template.content.cloneNode(true);
+          var card = node.querySelector('.case-study-card');
+          var imageWrap = node.querySelector('.cs-image-wrap');
+          var cardImg = node.querySelector('.cs-image');
+          var badgePhotos = node.querySelector('.cs-badge-photos');
+
+          // Determine list of images
+          var images = Array.isArray(item.images) && item.images.length > 0
+            ? item.images
+            : (item.imageUrl ? [item.imageUrl] : []);
+
+          // Designated cover image
+          var coverImg = item.imageUrl || (images.length > 0 ? images[0] : '');
+          var coverIndex = images.indexOf(coverImg);
+          if(coverIndex === -1 && coverImg){
+            images.unshift(coverImg);
+            coverIndex = 0;
+          }
+
+          if(coverImg && cardImg){
+            cardImg.src = coverImg;
+            cardImg.alt = item.title || 'Case study preview';
+            if(images.length > 1 && badgePhotos){
+              badgePhotos.textContent = '\u2726 ' + images.length + ' images';
+              badgePhotos.style.display = 'inline-flex';
+            }
+          } else if(imageWrap){
+            imageWrap.remove();
+          }
+
+          var catEl = node.querySelector('.cs-category');
+          if(catEl) catEl.textContent = item.category || '';
+
+          var titleEl = node.querySelector('.cs-title');
+          if(titleEl) titleEl.textContent = item.title || '';
+
+          var challengeEl = node.querySelector('.cs-challenge');
+          if(challengeEl) challengeEl.textContent = item.challenge || '\u2014';
+
+          var whatwedidEl = node.querySelector('.cs-whatwedid');
+          if(whatwedidEl) whatwedidEl.textContent = item.whatWeDid || '\u2014';
+
+          var outcomeEl = node.querySelector('.cs-outcome');
+          if(outcomeEl) outcomeEl.textContent = item.outcome || '\u2014';
+
+          var link = node.querySelector('.cs-link');
+          if(link){
+            if(item.link){
+              link.href = item.link;
+              link.style.display = 'inline-flex';
+              link.addEventListener('click', function(e){
+                e.stopPropagation();
+              });
+            } else {
+              link.style.display = 'none';
+            }
+          }
+
+          if(card){
+            // Ensure card is visible immediately
+            card.classList.add('in-view');
+
+            card.addEventListener('click', function(){
+              openModal(item, images, Math.max(0, coverIndex));
+            });
+            card.addEventListener('keydown', function(e){
+              if(e.key === 'Enter' || e.key === ' '){
+                e.preventDefault();
+                openModal(item, images, Math.max(0, coverIndex));
+              }
+            });
+          }
+
+          grid.appendChild(node);
+        });
+
+        // 6. Display grid
+        grid.style.setProperty('display', 'grid', 'important');
+
+        // Trigger reveal event for any listeners
+        document.dispatchEvent(new CustomEvent('lw:content-inserted'));
+      } else {
+        // No case studies available
+        showEmptyState();
+        grid.style.setProperty('display', 'none', 'important');
+        if(homeMore) homeMore.style.display = 'none';
+        if(workHeading) workHeading.textContent = 'THE PORTFOLIO IS BEING WRITTEN.';
+        if(homeHeading) homeHeading.textContent = 'THE PORTFOLIO IS BEING WRITTEN.';
+      }
+    })
+    .catch(function(err){
+      console.warn('Unable to load case studies:', err);
+      showEmptyState();
+      grid.style.setProperty('display', 'none', 'important');
+      if(homeMore) homeMore.style.display = 'none';
     });
 })();
