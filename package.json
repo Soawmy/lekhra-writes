@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "node server.js",
     "start": "node server.js",
-    "build": "mkdir -p dist && cp -a public/. dist/"
+    "build": "mkdir -p dist && cp -a public/. dist/",
+    "lint": "node -c server.js"
   },
   "dependencies": {
     "cookie": "^0.6.0",

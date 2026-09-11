@@ -6,6 +6,11 @@
 
   var isTouch = window.matchMedia('(hover: none), (pointer: coarse)').matches;
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var isIframe = window.self !== window.top;
+  if(isIframe){
+    document.documentElement.classList.add('in-iframe');
+    if(document.body) document.body.classList.add('in-iframe');
+  }
 
   /* ---------------- bfcache safety net ----------------
      When a link is clicked, .is-transitioning gets added to <body> to play
@@ -32,7 +37,7 @@
     var forceReplay = /[?&]replay-intro\b/.test(window.location.search);
     var seen = sessionStorage.getItem('lw-intro-seen');
     if(forceReplay){ sessionStorage.removeItem('lw-intro-seen'); seen = null; }
-    if(seen || reduced){
+    if(seen || reduced || isIframe){
       intro.remove();
       document.body.classList.add('skip-intro-timing');
     } else {
@@ -53,7 +58,7 @@
   if(hero) refreshHeroRect();
 
   /* ---------------- Custom cursor (desktop only) ---------------- */
-  if(!isTouch){
+  if(!isTouch && !isIframe){
     document.body.classList.add('has-custom-cursor');
     var dot = document.createElement('div'); dot.className = 'cursor-dot';
     var ring = document.createElement('div'); ring.className = 'cursor-ring';
