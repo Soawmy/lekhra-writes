@@ -473,16 +473,18 @@
     }
 
     function findConnectCol(){
-      var col = document.querySelector('footer:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4)');
+      var col = document.getElementById('footer-connect-col');
       if(col) return col;
-      var cols = document.querySelectorAll('.site-footer .footer-col');
+      var cols = document.querySelectorAll('.site-footer .footer-col, footer .footer-col');
       for(var i = 0; i < cols.length; i++){
         var h5 = cols[i].querySelector('h5');
         if(h5 && h5.textContent.trim().toLowerCase() === 'connect'){
           return cols[i];
         }
       }
-      return null;
+      var last = document.querySelector('.site-footer .footer-top > div:last-child');
+      if(last) return last;
+      return document.querySelector('footer:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4)');
     }
 
     function renderConnectLinks(col, links){
