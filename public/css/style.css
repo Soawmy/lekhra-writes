@@ -934,23 +934,38 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 }
 .empty-state .e-mark{ font-family: var(--font-display); font-size: 3rem; color: var(--gold); margin-bottom: 14px; }
 
-.case-study-grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap:24px; }
+.case-study-grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap:28px; }
+
+@keyframes csUnfadeUp {
+  0% {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes csLineExpand {
+  0% {
+    width: 0;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
 .case-study-card,
 .case-study-card.reveal{
   display: flex; flex-direction: column; height: 100%;
-  border: 1px solid rgba(241,238,231,0.12); border-radius:8px; padding: clamp(26px,4vw,34px);
-  background: rgba(255,255,255,0.015);
+  border: 1px solid rgba(241,238,231,0.12); border-radius:10px; padding: clamp(26px,4vw,34px);
+  background: rgba(255,255,255,0.016);
   overflow:hidden; cursor: pointer; position: relative;
-  opacity: 0;
-  transform: translateY(32px) scale(0.975);
-  filter: blur(8px);
-  transition: opacity 0.85s var(--ease-soft) var(--card-stagger, 0ms),
-              transform 0.85s var(--ease) var(--card-stagger, 0ms),
-              filter 0.85s var(--ease) var(--card-stagger, 0ms),
-              border-color 0.4s var(--ease) 0s,
-              box-shadow 0.4s var(--ease) 0s,
-              background 0.4s var(--ease) 0s;
-  will-change: transform, opacity, filter;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+  animation: csUnfadeUp 1.15s cubic-bezier(0.2, 0.85, 0.25, 1) both;
+  animation-delay: var(--card-stagger, 0ms);
+  will-change: transform, opacity;
 }
 .case-study-card::before{
   content: '';
@@ -958,65 +973,50 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   top: 0; left: 0;
   height: 2px;
   width: 0;
-  background: linear-gradient(90deg, transparent, var(--gold), transparent);
-  transition: width 0.9s var(--ease) calc(var(--card-stagger, 0ms) + 0.25s);
+  background: linear-gradient(90deg, transparent 0%, rgba(200,164,93,0.85) 30%, rgba(245,214,142,1) 50%, rgba(200,164,93,0.85) 70%, transparent 100%);
+  box-shadow: 0 0 10px rgba(200,164,93,0.5), 0 0 20px rgba(200,164,93,0.2);
+  animation: csLineExpand 1.1s cubic-bezier(0.2, 0.85, 0.25, 1) both;
+  animation-delay: calc(var(--card-stagger, 0ms) + 0.18s);
   pointer-events: none;
   z-index: 3;
 }
-.case-study-card.in-view,
-.case-study-card.reveal.in-view{
-  opacity: 1;
-  transform: translateY(0) scale(1);
-  filter: blur(0);
-}
-.case-study-card.in-view::before{
-  width: 100%;
-}
-.case-study-card.in-view:hover{
-  transform: translateY(-5px) scale(1.005);
-  border-color: rgba(200,164,93,0.5);
-  box-shadow: 0 16px 36px rgba(0,0,0,0.5), 0 0 20px rgba(200,164,93,0.1);
-  background: rgba(255,255,255,0.03);
+.case-study-card:hover{
+  transform: translateY(-6px) !important;
+  border-color: rgba(200,164,93,0.52);
+  box-shadow: 0 20px 45px rgba(0,0,0,0.6), 0 0 28px rgba(200,164,93,0.12);
+  background: rgba(255,255,255,0.035);
   transition: transform 0.35s var(--ease) 0s,
               border-color 0.35s var(--ease) 0s,
               box-shadow 0.35s var(--ease) 0s,
               background 0.35s var(--ease) 0s;
+}
+.case-study-card.is-settled{
+  animation: none !important;
+  opacity: 1;
+  transform: translateY(0);
+  transition: transform 0.35s var(--ease) 0s,
+              border-color 0.35s var(--ease) 0s,
+              box-shadow 0.35s var(--ease) 0s,
+              background 0.35s var(--ease) 0s;
+}
+.case-study-card.is-settled::before{
+  animation: none !important;
+  width: 100%;
 }
 .case-study-card .cs-image-wrap{
   margin: calc(-1 * clamp(26px,4vw,34px)) calc(-1 * clamp(26px,4vw,34px)) 20px;
   aspect-ratio: 16/10; overflow:hidden; background: #070709;
   display: flex; align-items: center; justify-content: center;
   position: relative;
+  border-bottom: 1px solid rgba(241,238,231,0.06);
 }
 .case-study-card .cs-image{
   width:100%; height:100%; object-fit:contain; display:block;
   padding: 10px; box-sizing: border-box;
-  transform: scale(1.04);
-  transition: transform 0.85s var(--ease) var(--card-stagger, 0ms);
-}
-.case-study-card.in-view .cs-image{
-  transform: scale(1);
 }
 .case-study-card.in-view:hover .cs-image{
-  transform: scale(1.04);
-  transition: transform 0.4s var(--ease) 0s;
-}
-@media (prefers-reduced-motion: reduce){
-  .case-study-card,
-  .case-study-card.reveal{
-    opacity: 1 !important;
-    transform: none !important;
-    filter: none !important;
-    transition: none !important;
-  }
-  .case-study-card::before{
-    width: 100% !important;
-    transition: none !important;
-  }
-  .case-study-card .cs-image{
-    transform: none !important;
-    transition: none !important;
-  }
+  transform: scale(1.045);
+  transition: transform 0.45s var(--ease) 0s;
 }
 .case-study-card .cs-badge-photos{
   position: absolute; top: 12px; right: 12px; z-index: 2;
@@ -1027,26 +1027,57 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 }
 .case-study-card .cs-category{
   display:inline-block; font-size:0.68rem; letter-spacing:0.14em; text-transform:uppercase;
-  color: var(--gold); border:1px solid rgba(200,164,93,0.3); border-radius:20px; padding:5px 14px;
+  color: var(--gold); border:1px solid rgba(200,164,93,0.35); background: rgba(200,164,93,0.04);
+  border-radius:20px; padding:5px 14px; width: fit-content;
 }
-.case-study-card .cs-title{ font-size:1.4rem; margin:16px 0 14px; }
+.case-study-card .cs-title{
+  font-size:1.45rem; margin:16px 0 14px; color: var(--ivory);
+}
 .case-study-card .cs-body{ flex: 1; display: flex; flex-direction: column; }
-.case-study-card .cs-body p{ margin-bottom:12px; font-size:0.92rem; color: var(--grey); line-height:1.5; }
-.case-study-card .cs-body strong{ display:block; color: var(--ivory); font-size:0.7rem; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:4px; font-weight:600; }
-
+.case-study-card .cs-body p{
+  margin-bottom:12px; font-size:0.92rem; color: var(--grey); line-height:1.55;
+}
+.case-study-card .cs-body strong{ display:block; color: var(--ivory); font-size:0.7rem; letter-spacing:0.12em; text-transform:uppercase; margin-bottom:4px; font-weight:600; }
 .case-study-card .cs-card-footer{
   display: flex; align-items: center; justify-content: space-between;
-  margin-top: auto; padding-top: 14px; gap: 12px;
+  margin-top: auto; padding-top: 16px; gap: 12px;
+  border-top: 1px solid rgba(241,238,231,0.08);
 }
 .case-study-card .cs-click-hint{
-  font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase;
+  font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase;
   color: var(--gold); display: inline-flex; align-items: center; gap: 6px;
-  transition: gap .25s var(--ease);
+  transition: gap .3s var(--ease), color .3s var(--ease);
+}
+.case-study-card .cs-click-hint span:last-child{
+  transition: transform .3s var(--ease);
 }
 .case-study-card:hover .cs-click-hint{
-  gap: 9px; color: var(--ivory);
+  color: var(--ivory);
+}
+.case-study-card:hover .cs-click-hint span:last-child{
+  transform: translateX(5px);
+  color: var(--gold);
 }
 .case-study-card .cs-link{ margin-top: 0 !important; }
+
+@media (prefers-reduced-motion: reduce){
+  .case-study-card,
+  .case-study-card.reveal,
+  .case-study-card .cs-image,
+  .case-study-card .cs-category,
+  .case-study-card .cs-title,
+  .case-study-card .cs-body p,
+  .case-study-card .cs-card-footer{
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+    transition: none !important;
+  }
+  .case-study-card::before{
+    width: 100% !important;
+    transition: none !important;
+  }
+}
 
 /* Case Study Profile Modal */
 .cs-modal-overlay{

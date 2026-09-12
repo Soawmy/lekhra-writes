@@ -216,7 +216,7 @@
   var revealIO = null;
   function observeReveals(root){
     var scope = root || document;
-    var els = scope.querySelectorAll('.reveal:not(.principle-stagger), .ink-divider');
+    var els = scope.querySelectorAll('.reveal:not(.principle-stagger):not(.case-study-card), .ink-divider');
     if(revealIO){
       els.forEach(function(el){ revealIO.observe(el); });
     } else {
@@ -233,22 +233,12 @@
   observeReveals();
   document.addEventListener('lw:content-inserted', function(){ observeReveals(); });
 
-  /* ---------------- Page transitions between internal links ----------------
-     Desktop only: the animated sheet-sweep is a nice-to-have flourish, but
-     intercepting taps with preventDefault + a delayed manual navigation is
-     exactly the kind of thing that can misfire on mobile browsers. Touch
-     devices get plain, instant, native navigation — no interception. */
+  /* ---------------- Page navigation ----------------
+     Instant, crisp navigation without artificial click delays. */
   var overlay = document.getElementById('page-transition');
-  if(overlay && !reduced && !isTouch){
-    document.querySelectorAll('a[href]').forEach(function(a){
-      var href = a.getAttribute('href');
-      if(!href || href.startsWith('#') || href.startsWith('http') || href.startsWith('mailto') || a.target === '_blank') return;
-      a.addEventListener('click', function(e){
-        e.preventDefault();
-        document.body.classList.add('is-transitioning');
-        setTimeout(function(){ window.location.href = href; }, 470);
-      });
-    });
+  if(overlay){
+    // Keep overlay inactive to guarantee zero click delay
+    document.body.classList.remove('is-transitioning');
   }
 
   /* ---------------- ink divider builder ---------------- */
@@ -577,5 +567,19 @@
       initConnectLinks();
     }
   })();
+
+  /* ---- background prefetch for case studies to ensure instant work page rendering ---- */
+  try {
+    if(!localStorage.getItem('lw_case_studies_cache')){
+      fetch('/api/case-studies', { cache: 'no-store' })
+        .then(function(res){ return res.ok ? res.json() : null; })
+        .then(function(data){
+          if(data && Array.isArray(data.items)){
+            try { localStorage.setItem('lw_case_studies_cache', JSON.stringify(data.items)); } catch(e){}
+          }
+        })
+        .catch(function(){});
+    }
+  } catch(e){}
 
 })();

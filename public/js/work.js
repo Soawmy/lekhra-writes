@@ -194,158 +194,255 @@
     empty.hidden = false;
   }
 
-  fetch('/api/case-studies')
+  var renderedItems = null;
+
+  function areItemsIdentical(a, b){
+    if(!Array.isArray(a) || !Array.isArray(b)) return false;
+    if(a.length !== b.length) return false;
+    for(var i = 0; i < a.length; i++){
+      if(a[i].id !== b[i].id) return false;
+      if(a[i].title !== b[i].title) return false;
+      if(a[i].category !== b[i].category) return false;
+      if(a[i].imageUrl !== b[i].imageUrl) return false;
+      var imgA = Array.isArray(a[i].images) ? a[i].images.length : (a[i].imageUrl ? 1 : 0);
+      var imgB = Array.isArray(b[i].images) ? b[i].images.length : (b[i].imageUrl ? 1 : 0);
+      if(imgA !== imgB) return false;
+    }
+    return true;
+  }
+
+  function bindExistingCards(items){
+    var cards = grid.querySelectorAll('.case-study-card');
+    if(!cards.length || cards.length !== items.length) return false;
+
+    cards.forEach(function(card, index){
+      var item = items[index];
+      if(!item) return;
+
+      var images = Array.isArray(item.images) && item.images.length > 0
+        ? item.images
+        : (item.imageUrl ? [item.imageUrl] : []);
+      var coverImg = item.imageUrl || (images.length > 0 ? images[0] : '');
+      var coverIndex = images.indexOf(coverImg);
+      if(coverIndex === -1 && coverImg){
+        images.unshift(coverImg);
+        coverIndex = 0;
+      }
+
+      var link = card.querySelector('.cs-link');
+      if(link){
+        link.addEventListener('click', function(e){
+          e.stopPropagation();
+        });
+      }
+
+      card.style.setProperty('--card-stagger', (index * 160) + 'ms');
+      card.setAttribute('data-cursor', 'OPEN');
+
+      card.addEventListener('click', function(){
+        openModal(item, images, Math.max(0, coverIndex));
+      });
+      card.addEventListener('keydown', function(e){
+        if(e.key === 'Enter' || e.key === ' '){
+          e.preventDefault();
+          openModal(item, images, Math.max(0, coverIndex));
+        }
+      });
+      card.addEventListener('animationend', function(){
+        card.classList.add('is-settled');
+      });
+      setTimeout(function(){
+        card.classList.add('is-settled');
+      }, (index * 160) + 1250);
+    });
+
+    renderedItems = items.slice();
+    return true;
+  }
+
+  function renderGrid(items){
+    if(!items || !items.length){
+      showEmptyState();
+      grid.style.setProperty('display', 'none', 'important');
+      if(homeMore) homeMore.style.display = 'none';
+      if(workHeading) workHeading.textContent = 'THE PORTFOLIO IS BEING WRITTEN.';
+      if(homeHeading) homeHeading.textContent = 'THE PORTFOLIO IS BEING WRITTEN.';
+      renderedItems = [];
+      return;
+    }
+
+    renderedItems = items.slice();
+
+    // 1. Hide empty state
+    hideEmptyState();
+
+    // 2. Update page headings to reflect active work
+    if(workHeading){
+      workHeading.textContent = 'SELECTED WORK.';
+    }
+    if(workSubtitle){
+      workSubtitle.textContent = 'Every project here is real \u2014 a real brief, a real challenge, a real outcome. Delivered across content, scripting, video, and design.';
+    }
+    if(homeHeading){
+      homeHeading.textContent = 'SELECTED WORK.';
+    }
+
+    // 3. Prepare items for display (Home page displays up to 4 items)
+    var isHome = !!homeHeading;
+    var displayItems = items;
+    if(isHome){
+      displayItems = items.slice(0, 4);
+      if(homeMore){
+        if(items.length > 4){
+          homeMore.style.setProperty('display', 'block', 'important');
+        } else {
+          homeMore.style.setProperty('display', 'none', 'important');
+        }
+      }
+    }
+
+    // 4. Clear grid before populating
+    grid.innerHTML = '';
+
+    // 5. Populate cards
+    displayItems.forEach(function(item, index){
+      var node = template.content.cloneNode(true);
+      var card = node.querySelector('.case-study-card');
+      var imageWrap = node.querySelector('.cs-image-wrap');
+      var cardImg = node.querySelector('.cs-image');
+      var badgePhotos = node.querySelector('.cs-badge-photos');
+
+      // Determine list of images
+      var images = Array.isArray(item.images) && item.images.length > 0
+        ? item.images
+        : (item.imageUrl ? [item.imageUrl] : []);
+
+      // Designated cover image
+      var coverImg = item.imageUrl || (images.length > 0 ? images[0] : '');
+      var coverIndex = images.indexOf(coverImg);
+      if(coverIndex === -1 && coverImg){
+        images.unshift(coverImg);
+        coverIndex = 0;
+      }
+
+      if(coverImg && cardImg){
+        cardImg.src = coverImg;
+        cardImg.alt = item.title || 'Case study preview';
+        if(images.length > 1 && badgePhotos){
+          badgePhotos.textContent = '\u2726 ' + images.length + ' images';
+          badgePhotos.style.display = 'inline-flex';
+        }
+      } else if(imageWrap){
+        imageWrap.remove();
+      }
+
+      var catEl = node.querySelector('.cs-category');
+      if(catEl) catEl.textContent = item.category || '';
+
+      var titleEl = node.querySelector('.cs-title');
+      if(titleEl) titleEl.textContent = item.title || '';
+
+      var challengeEl = node.querySelector('.cs-challenge');
+      if(challengeEl) challengeEl.textContent = item.challenge || '\u2014';
+
+      var whatwedidEl = node.querySelector('.cs-whatwedid');
+      if(whatwedidEl) whatwedidEl.textContent = item.whatWeDid || '\u2014';
+
+      var outcomeEl = node.querySelector('.cs-outcome');
+      if(outcomeEl) outcomeEl.textContent = item.outcome || '\u2014';
+
+      var link = node.querySelector('.cs-link');
+      if(link){
+        if(item.link){
+          link.href = item.link;
+          link.style.display = 'inline-flex';
+          link.addEventListener('click', function(e){
+            e.stopPropagation();
+          });
+        } else {
+          link.style.display = 'none';
+        }
+      }
+
+      if(card){
+        card.classList.remove('is-settled');
+        card.style.setProperty('--card-stagger', (index * 160) + 'ms');
+        card.setAttribute('data-cursor', 'OPEN');
+
+        card.addEventListener('click', function(){
+          openModal(item, images, Math.max(0, coverIndex));
+        });
+        card.addEventListener('keydown', function(e){
+          if(e.key === 'Enter' || e.key === ' '){
+            e.preventDefault();
+            openModal(item, images, Math.max(0, coverIndex));
+          }
+        });
+        card.addEventListener('animationend', function(){
+          card.classList.add('is-settled');
+        });
+        setTimeout(function(){
+          card.classList.add('is-settled');
+        }, (index * 160) + 1250);
+      }
+
+      grid.appendChild(node);
+    });
+
+    // 6. Display grid
+    grid.style.setProperty('display', 'grid', 'important');
+
+    // Trigger reveal event for any listeners
+    document.dispatchEvent(new CustomEvent('lw:content-inserted'));
+  }
+
+  // Instant zero-delay load from cache or embedded JSON
+  var preloaded = null;
+  try {
+    var rawCache = localStorage.getItem('lw_case_studies_cache');
+    if(rawCache) preloaded = JSON.parse(rawCache);
+  } catch(e){}
+
+  if(!preloaded || !Array.isArray(preloaded) || !preloaded.length){
+    var initScript = document.getElementById('initial-case-studies');
+    if(initScript && initScript.textContent.trim()){
+      try {
+        preloaded = JSON.parse(initScript.textContent.trim());
+        if(Array.isArray(preloaded) && preloaded.length){
+          try { localStorage.setItem('lw_case_studies_cache', JSON.stringify(preloaded)); } catch(e){}
+        }
+      } catch(e){}
+    }
+  }
+
+  if(preloaded && Array.isArray(preloaded) && preloaded.length > 0){
+    if(!bindExistingCards(preloaded)){
+      renderGrid(preloaded);
+    }
+  }
+
+  // In parallel, fetch fresh data from server and revalidate
+  fetch('/api/case-studies', { cache: 'no-store' })
     .then(function(res){
       if(!res.ok) throw new Error('API request failed with status ' + res.status);
       return res.json();
     })
     .then(function(data){
-      var items = (data && Array.isArray(data.items)) ? data.items : [];
+      var freshItems = (data && Array.isArray(data.items)) ? data.items : [];
+      try {
+        localStorage.setItem('lw_case_studies_cache', JSON.stringify(freshItems));
+      } catch(e){}
 
-      if(items.length > 0){
-        // 1. Permanently hide the empty state
-        hideEmptyState();
-
-        // 2. Update page headings to reflect active work
-        if(workHeading){
-          workHeading.textContent = 'SELECTED WORK.';
-        }
-        if(workSubtitle){
-          workSubtitle.textContent = 'Every project here is real \u2014 a real brief, a real challenge, a real outcome. Delivered across content, scripting, video, and design.';
-        }
-        if(homeHeading){
-          homeHeading.textContent = 'SELECTED WORK.';
-        }
-
-        // 3. Prepare items for display (Home page displays up to 4 items)
-        var isHome = !!homeHeading;
-        var displayItems = items;
-        if(isHome){
-          displayItems = items.slice(0, 4);
-          if(homeMore){
-            if(items.length > 4){
-              homeMore.style.setProperty('display', 'block', 'important');
-            } else {
-              homeMore.style.setProperty('display', 'none', 'important');
-            }
-          }
-        }
-
-        // 4. Clear grid before populating
-        grid.innerHTML = '';
-
-        // 5. Populate cards
-        displayItems.forEach(function(item, index){
-          var node = template.content.cloneNode(true);
-          var card = node.querySelector('.case-study-card');
-          var imageWrap = node.querySelector('.cs-image-wrap');
-          var cardImg = node.querySelector('.cs-image');
-          var badgePhotos = node.querySelector('.cs-badge-photos');
-
-          // Determine list of images
-          var images = Array.isArray(item.images) && item.images.length > 0
-            ? item.images
-            : (item.imageUrl ? [item.imageUrl] : []);
-
-          // Designated cover image
-          var coverImg = item.imageUrl || (images.length > 0 ? images[0] : '');
-          var coverIndex = images.indexOf(coverImg);
-          if(coverIndex === -1 && coverImg){
-            images.unshift(coverImg);
-            coverIndex = 0;
-          }
-
-          if(coverImg && cardImg){
-            cardImg.src = coverImg;
-            cardImg.alt = item.title || 'Case study preview';
-            if(images.length > 1 && badgePhotos){
-              badgePhotos.textContent = '\u2726 ' + images.length + ' images';
-              badgePhotos.style.display = 'inline-flex';
-            }
-          } else if(imageWrap){
-            imageWrap.remove();
-          }
-
-          var catEl = node.querySelector('.cs-category');
-          if(catEl) catEl.textContent = item.category || '';
-
-          var titleEl = node.querySelector('.cs-title');
-          if(titleEl) titleEl.textContent = item.title || '';
-
-          var challengeEl = node.querySelector('.cs-challenge');
-          if(challengeEl) challengeEl.textContent = item.challenge || '\u2014';
-
-          var whatwedidEl = node.querySelector('.cs-whatwedid');
-          if(whatwedidEl) whatwedidEl.textContent = item.whatWeDid || '\u2014';
-
-          var outcomeEl = node.querySelector('.cs-outcome');
-          if(outcomeEl) outcomeEl.textContent = item.outcome || '\u2014';
-
-          var link = node.querySelector('.cs-link');
-          if(link){
-            if(item.link){
-              link.href = item.link;
-              link.style.display = 'inline-flex';
-              link.addEventListener('click', function(e){
-                e.stopPropagation();
-              });
-            } else {
-              link.style.display = 'none';
-            }
-          }
-
-          if(card){
-            card.classList.remove('in-view');
-            card.style.setProperty('--card-stagger', (index * 120) + 'ms');
-            card.setAttribute('data-cursor', 'OPEN');
-
-            card.addEventListener('click', function(){
-              openModal(item, images, Math.max(0, coverIndex));
-            });
-            card.addEventListener('keydown', function(e){
-              if(e.key === 'Enter' || e.key === ' '){
-                e.preventDefault();
-                openModal(item, images, Math.max(0, coverIndex));
-              }
-            });
-          }
-
-          grid.appendChild(node);
-        });
-
-        // 6. Display grid
-        grid.style.setProperty('display', 'grid', 'important');
-
-        // Smooth cinematic staggered entrance
-        requestAnimationFrame(function(){
-          requestAnimationFrame(function(){
-            var cards = grid.querySelectorAll('.case-study-card');
-            cards.forEach(function(c){
-              c.classList.add('in-view');
-            });
-            setTimeout(function(){
-              cards.forEach(function(c){
-                c.style.setProperty('--card-stagger', '0ms');
-              });
-            }, (displayItems.length * 120) + 950);
-          });
-        });
-
-        // Trigger reveal event for any listeners
-        document.dispatchEvent(new CustomEvent('lw:content-inserted'));
-      } else {
-        // No case studies available
-        showEmptyState();
-        grid.style.setProperty('display', 'none', 'important');
-        if(homeMore) homeMore.style.display = 'none';
-        if(workHeading) workHeading.textContent = 'THE PORTFOLIO IS BEING WRITTEN.';
-        if(homeHeading) homeHeading.textContent = 'THE PORTFOLIO IS BEING WRITTEN.';
+      if(!areItemsIdentical(renderedItems, freshItems)){
+        renderGrid(freshItems);
       }
     })
     .catch(function(err){
       console.warn('Unable to load case studies:', err);
-      showEmptyState();
-      grid.style.setProperty('display', 'none', 'important');
-      if(homeMore) homeMore.style.display = 'none';
+      if(!renderedItems || !renderedItems.length){
+        showEmptyState();
+        grid.style.setProperty('display', 'none', 'important');
+        if(homeMore) homeMore.style.display = 'none';
+      }
     });
 })();

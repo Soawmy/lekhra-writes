@@ -379,6 +379,7 @@
     }).then(function(data){
       if(!data) return;
       caseStudyList.innerHTML = '';
+      try { localStorage.setItem('lw_case_studies_cache', JSON.stringify(data.items || [])); } catch(e){}
       if(!data.items || !data.items.length){
         caseStudyList.innerHTML = '<p class="empty-note">No case studies added yet.</p>';
         return;
