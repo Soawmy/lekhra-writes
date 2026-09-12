@@ -58,7 +58,7 @@
   if(hero) refreshHeroRect();
 
   /* ---------------- Custom cursor (desktop only) ---------------- */
-  if(!isTouch && !isIframe){
+  if(!isTouch){
     document.body.classList.add('has-custom-cursor');
     var dot = document.createElement('div'); dot.className = 'cursor-dot';
     var ring = document.createElement('div'); ring.className = 'cursor-ring';
@@ -80,6 +80,18 @@
         ring.classList.add('is-active');
       }
     }, { passive: true });
+
+    document.addEventListener('mouseleave', function(){
+      dot.classList.remove('is-active');
+      ring.classList.remove('is-active');
+      label.classList.remove('is-active');
+    });
+    document.addEventListener('mouseenter', function(){
+      if(cursorSeen){
+        dot.classList.add('is-active');
+        ring.classList.add('is-active');
+      }
+    });
 
     /* ---- magnetic buttons: pull toward the cursor within a small radius ----
        Bounding rects are cached and only recomputed on scroll/resize, not

@@ -128,7 +128,7 @@ section{ position: relative; }
    Custom cursor (desktop only)
    ========================================================================== */
 .cursor-dot, .cursor-ring{
-  position: fixed; top:0; left:0; pointer-events:none; z-index: 9999;
+  position: fixed; top:0; left:0; pointer-events:none; z-index: 100005;
   border-radius: 50%;
   transform: translate(-50%,-50%);
   opacity:0;
@@ -149,7 +149,7 @@ section{ position: relative; }
   background: rgba(200,164,93,0.1);
 }
 .cursor-label{
-  position: fixed; top:0; left:0; z-index: 9999; pointer-events:none;
+  position: fixed; top:0; left:0; z-index: 100005; pointer-events:none;
   font-size: 0.62rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase;
   color: var(--obsidian); background: var(--gold);
   padding: 5px 10px; border-radius: 20px;
@@ -158,9 +158,16 @@ section{ position: relative; }
   white-space: nowrap;
 }
 .cursor-label.is-active{ transform: translate(-50%, -50%) scale(1); opacity: 1; }
-body.has-custom-cursor, body.has-custom-cursor a, body.has-custom-cursor button{ cursor:none; }
+body.has-custom-cursor,
+body.has-custom-cursor * {
+  cursor: none !important;
+}
 @media (hover: none), (pointer: coarse){
   .cursor-dot, .cursor-ring, .cursor-label{ display:none !important; }
+  body.has-custom-cursor,
+  body.has-custom-cursor * {
+    cursor: auto !important;
+  }
 }
 
 /* ==========================================================================
@@ -928,11 +935,52 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 .empty-state .e-mark{ font-family: var(--font-display); font-size: 3rem; color: var(--gold); margin-bottom: 14px; }
 
 .case-study-grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap:24px; }
-.case-study-card{
+.case-study-card,
+.case-study-card.reveal{
   display: flex; flex-direction: column; height: 100%;
   border: 1px solid rgba(241,238,231,0.12); border-radius:8px; padding: clamp(26px,4vw,34px);
-  background: rgba(255,255,255,0.015); transition: transform .4s var(--ease), border-color .4s var(--ease), box-shadow .4s var(--ease);
+  background: rgba(255,255,255,0.015);
   overflow:hidden; cursor: pointer; position: relative;
+  opacity: 0;
+  transform: translateY(32px) scale(0.975);
+  filter: blur(8px);
+  transition: opacity 0.85s var(--ease-soft) var(--card-stagger, 0ms),
+              transform 0.85s var(--ease) var(--card-stagger, 0ms),
+              filter 0.85s var(--ease) var(--card-stagger, 0ms),
+              border-color 0.4s var(--ease) 0s,
+              box-shadow 0.4s var(--ease) 0s,
+              background 0.4s var(--ease) 0s;
+  will-change: transform, opacity, filter;
+}
+.case-study-card::before{
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  height: 2px;
+  width: 0;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  transition: width 0.9s var(--ease) calc(var(--card-stagger, 0ms) + 0.25s);
+  pointer-events: none;
+  z-index: 3;
+}
+.case-study-card.in-view,
+.case-study-card.reveal.in-view{
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  filter: blur(0);
+}
+.case-study-card.in-view::before{
+  width: 100%;
+}
+.case-study-card.in-view:hover{
+  transform: translateY(-5px) scale(1.005);
+  border-color: rgba(200,164,93,0.5);
+  box-shadow: 0 16px 36px rgba(0,0,0,0.5), 0 0 20px rgba(200,164,93,0.1);
+  background: rgba(255,255,255,0.03);
+  transition: transform 0.35s var(--ease) 0s,
+              border-color 0.35s var(--ease) 0s,
+              box-shadow 0.35s var(--ease) 0s,
+              background 0.35s var(--ease) 0s;
 }
 .case-study-card .cs-image-wrap{
   margin: calc(-1 * clamp(26px,4vw,34px)) calc(-1 * clamp(26px,4vw,34px)) 20px;
@@ -943,15 +991,32 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 .case-study-card .cs-image{
   width:100%; height:100%; object-fit:contain; display:block;
   padding: 10px; box-sizing: border-box;
-  transition: transform .4s var(--ease);
+  transform: scale(1.04);
+  transition: transform 0.85s var(--ease) var(--card-stagger, 0ms);
 }
-.case-study-card:hover{
-  transform: translateY(-4px);
-  border-color: rgba(200,164,93,0.45);
-  box-shadow: 0 12px 30px rgba(0,0,0,0.45), 0 0 15px rgba(200,164,93,0.08);
+.case-study-card.in-view .cs-image{
+  transform: scale(1);
 }
-.case-study-card:hover .cs-image{
-  transform: scale(1.02);
+.case-study-card.in-view:hover .cs-image{
+  transform: scale(1.04);
+  transition: transform 0.4s var(--ease) 0s;
+}
+@media (prefers-reduced-motion: reduce){
+  .case-study-card,
+  .case-study-card.reveal{
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+    transition: none !important;
+  }
+  .case-study-card::before{
+    width: 100% !important;
+    transition: none !important;
+  }
+  .case-study-card .cs-image{
+    transform: none !important;
+    transition: none !important;
+  }
 }
 .case-study-card .cs-badge-photos{
   position: absolute; top: 12px; right: 12px; z-index: 2;

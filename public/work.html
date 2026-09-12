@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@300;400;500;600;700&display=swap">
-<link rel="stylesheet" href="css/style.css?v=20">
+<link rel="stylesheet" href="css/style.css?v=22">
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
@@ -63,16 +63,16 @@
 
 <!-- Case Study Profile Popup Modal -->
 <div id="cs-modal" class="cs-modal-overlay" style="display:none;" aria-hidden="true" role="dialog" aria-modal="true">
-  <div class="cs-modal-backdrop"></div>
+  <div class="cs-modal-backdrop" data-cursor="CLOSE"></div>
   <div class="cs-modal-dialog">
-    <button type="button" class="cs-modal-close" aria-label="Close modal">&times;</button>
+    <button type="button" class="cs-modal-close" aria-label="Close modal" data-cursor="CLOSE">&times;</button>
     <div class="cs-modal-layout">
       <!-- Left side: image gallery -->
       <div class="cs-modal-gallery">
         <div class="cs-modal-main-img-wrap">
           <img id="cs-modal-active-img" src="" alt="" class="cs-modal-main-img">
-          <button type="button" class="cs-modal-nav cs-modal-prev" aria-label="Previous image">&lsaquo;</button>
-          <button type="button" class="cs-modal-nav cs-modal-next" aria-label="Next image">&rsaquo;</button>
+          <button type="button" class="cs-modal-nav cs-modal-prev" aria-label="Previous image" data-cursor="PREV">&lsaquo;</button>
+          <button type="button" class="cs-modal-nav cs-modal-next" aria-label="Next image" data-cursor="NEXT">&rsaquo;</button>
           <div class="cs-modal-counter" id="cs-modal-counter">1 / 1</div>
         </div>
         <div class="cs-modal-thumbs" id="cs-modal-thumbs"></div>
@@ -98,7 +98,7 @@
           </div>
         </div>
         <div class="cs-modal-footer">
-          <a id="cs-modal-link" href="#" target="_blank" rel="noopener" class="btn btn-ghost" style="display:none;">
+          <a id="cs-modal-link" href="#" target="_blank" rel="noopener" class="btn btn-ghost" data-cursor="VISIT" style="display:none;">
             <span>View Live Project</span><span class="arrow">&rarr;</span>
           </a>
         </div>
@@ -108,7 +108,7 @@
 </div>
 
 <template id="case-study-template">
-  <article class="case-study-card reveal" tabindex="0" role="button" aria-label="View case study">
+  <article class="case-study-card reveal" tabindex="0" role="button" aria-label="View case study" data-cursor="OPEN">
     <div class="cs-image-wrap">
       <img class="cs-image" src="" alt="" loading="lazy">
       <span class="cs-badge-photos" style="display:none;"></span>
@@ -173,7 +173,7 @@
     </div>
   </div>
 </footer>
-<script src="js/main.js?v=20" defer></script>
-<script src="js/work.js?v=15" defer></script>
+<script src="js/main.js?v=22" defer></script>
+<script src="js/work.js?v=22" defer></script>
 </body>
 </html>

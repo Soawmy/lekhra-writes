@@ -35,6 +35,16 @@
   var currentImgIndex = 0;
   var keydownHandler = null;
 
+  function resetCursorState(){
+    var ring = document.querySelector('.cursor-ring');
+    var label = document.querySelector('.cursor-label');
+    if(ring) ring.classList.remove('is-hover');
+    if(label){
+      label.classList.remove('is-active');
+      label.textContent = '';
+    }
+  }
+
   function closeModal(){
     if(!modal) return;
     modal.style.display = 'none';
@@ -44,6 +54,7 @@
       document.removeEventListener('keydown', keydownHandler);
       keydownHandler = null;
     }
+    resetCursorState();
   }
 
   function updateModalGallery(){
@@ -80,6 +91,7 @@
           thumb.type = 'button';
           thumb.className = 'cs-modal-thumb' + (idx === currentImgIndex ? ' is-active' : '');
           thumb.setAttribute('aria-label', 'View image ' + (idx + 1));
+          thumb.setAttribute('data-cursor', 'VIEW');
           var img = document.createElement('img');
           img.src = imgUrl;
           img.alt = '';
@@ -105,6 +117,7 @@
 
   function openModal(item, images, initialIndex){
     if(!modal) return;
+    resetCursorState();
     currentImages = images || [];
     currentImgIndex = (initialIndex >= 0 && initialIndex < currentImages.length) ? initialIndex : 0;
 
@@ -222,7 +235,7 @@
         grid.innerHTML = '';
 
         // 5. Populate cards
-        displayItems.forEach(function(item){
+        displayItems.forEach(function(item, index){
           var node = template.content.cloneNode(true);
           var card = node.querySelector('.case-study-card');
           var imageWrap = node.querySelector('.cs-image-wrap');
@@ -282,8 +295,9 @@
           }
 
           if(card){
-            // Ensure card is visible immediately
-            card.classList.add('in-view');
+            card.classList.remove('in-view');
+            card.style.setProperty('--card-stagger', (index * 120) + 'ms');
+            card.setAttribute('data-cursor', 'OPEN');
 
             card.addEventListener('click', function(){
               openModal(item, images, Math.max(0, coverIndex));
@@ -301,6 +315,21 @@
 
         // 6. Display grid
         grid.style.setProperty('display', 'grid', 'important');
+
+        // Smooth cinematic staggered entrance
+        requestAnimationFrame(function(){
+          requestAnimationFrame(function(){
+            var cards = grid.querySelectorAll('.case-study-card');
+            cards.forEach(function(c){
+              c.classList.add('in-view');
+            });
+            setTimeout(function(){
+              cards.forEach(function(c){
+                c.style.setProperty('--card-stagger', '0ms');
+              });
+            }, (displayItems.length * 120) + 950);
+          });
+        });
 
         // Trigger reveal event for any listeners
         document.dispatchEvent(new CustomEvent('lw:content-inserted'));

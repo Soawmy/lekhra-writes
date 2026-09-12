@@ -33,11 +33,19 @@ app.all('/api/admin/submissions', adapt(require('./api/admin/submissions')));
 
 // Serve static directory
 app.use(express.static(path.join(__dirname, 'public'), {
-  extensions: ['html']
+  extensions: ['html'],
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('.html')) {
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+    }
+  }
 }));
 
 // Route for root and clean URLs
 app.get('/', (req, res) => {
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
